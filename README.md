@@ -1,5 +1,7 @@
 # Docspell Viewer (Android)
 
+**Sprachen:** **Deutsch** · [English](README.en.md)
+
 Android-App (**Kotlin + Jetpack Compose**) zum Lesen und Durchsuchen von Dokumenten auf einem **eigenen Docspell-Server** über die REST-API v1.
 
 ## Voraussetzungen

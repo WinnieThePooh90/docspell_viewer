@@ -1,0 +1,39 @@
+# --- Android / Gradle ---
+**/.gradle/
+**/build/
+local.properties
+
+# --- Android Studio / IntelliJ ---
+.idea/
+*.iml
+
+# --- Kotlin ---
+**/.kotlin/
+
+# --- Build artifacts ---
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# --- Signing (never commit) ---
+*.jks
+*.keystore
+keystore.properties
+
+# --- Native / NDK ---
+.externalNativeBuild/
+.cxx/
+
+# --- Android Studio captures ---
+captures/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
+
+# --- Nextcloud (optional sync metadata) ---
+.sync-exclude.lst

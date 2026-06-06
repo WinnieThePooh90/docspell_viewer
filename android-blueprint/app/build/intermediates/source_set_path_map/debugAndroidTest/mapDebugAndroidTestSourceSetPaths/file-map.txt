@@ -1,4 +1,0 @@
-paulokat.de.docspellviewer.test.app-androidTest-0 /home/karsten/Nextcloud/Programmierung/Cursor/DocspellApp/android-blueprint/app/build/generated/res/resValues/androidTest/debug
-paulokat.de.docspellviewer.test.app-mergeDebugAndroidTestResources-1 /home/karsten/Nextcloud/Programmierung/Cursor/DocspellApp/android-blueprint/app/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/merged.dir
-paulokat.de.docspellviewer.test.app-mergeDebugAndroidTestResources-2 /home/karsten/Nextcloud/Programmierung/Cursor/DocspellApp/android-blueprint/app/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/stripped.dir
-paulokat.de.docspellviewer.test.app-debugAndroidTest-3 /home/karsten/Nextcloud/Programmierung/Cursor/DocspellApp/android-blueprint/app/build/intermediates/merged_res/debugAndroidTest/mergeDebugAndroidTestResources

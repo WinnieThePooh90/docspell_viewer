@@ -66,12 +66,14 @@ Reihenfolge: erst frische Installation, dann Upgrade-Szenario (falls möglich).
 
 ### A6 — Veröffentlichung Stufe A
 
-- [ ] Git-Tag `v1.0.0` (optional, aber empfohlen)
-- [ ] Release-APK als GitHub-Release anhängen (oder anderer Kanal)
-- [ ] Release Notes aus `CHANGELOG.md` übernehmen
-- [ ] Kurz testen: Download + Installation der veröffentlichten APK
+- [x] Git-Tag `v1.0.0` (optional, aber empfohlen)
+- [x] Release-APK als GitHub-Release anhängen (oder anderer Kanal) — Draft mit APK
+- [x] Release Notes aus `CHANGELOG.md` übernehmen → Vorlage [`docs/github-release-notes-1.0.0.md`](github-release-notes-1.0.0.md)
+- [ ] Kurz testen: Download + Installation der veröffentlichten APK (nach **Publish** des Drafts)
 
 **Stufe A abgeschlossen, wenn A1–A6 durchgehend erledigt sind.**
+
+**Noch offen für A6-Abschluss:** Draft auf GitHub veröffentlichen (Release Notes einfügen, Tag `v1.0.0` wählen, **Publish release**), dann APK vom Release herunterladen und auf Gerät installieren.
 
 ---
 
@@ -155,6 +157,7 @@ B1 Session → B2 Kompatibilität → B3 Tests/CI → B4 Datenschutz → B5 Play
 | Build / Version | `android-blueprint/app/build.gradle.kts` |
 | App-Lizenz | `LICENSE` (Apache-2.0) |
 | Changelog | `CHANGELOG.md` |
+| GitHub Release Notes (1.0.0) | `docs/github-release-notes-1.0.0.md` |
 | Release-APK (Artefakt) | `android-blueprint/app/build/outputs/apk/release/docspell_viewer_1.0.0.apk` |
 | ProGuard / R8 | `android-blueprint/app/proguard-rules.pro` |
 | Release-Keystore (lokal) | `~/Nextcloud/Programmierung/Keys/docspell_viewer/` |

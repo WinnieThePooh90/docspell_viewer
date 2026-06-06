@@ -27,6 +27,7 @@
     <string name="settings_support">Support</string>
     <string name="settings_support_hint">Enjoying the app? Want to support my work? I would really appreciate it :)</string>
     <string name="settings_licenses">Licenses</string>
+    <string name="settings_privacy">Privacy</string>
     <string name="licenses_section_app">This app (source code)</string>
     <string name="licenses_section_third_party">Third-party software &amp; other material</string>
     <string name="settings_save">Save</string>

@@ -47,6 +47,7 @@ private const val ROUTE_CATEGORIES = "categories"
 private const val ROUTE_VIEWER = "viewer"
 private const val ROUTE_DETAIL = "detail"
 private const val ROUTE_LICENSES = "licenses"
+private const val ROUTE_PRIVACY = "privacy"
 private const val ROUTE_FILTER_PICKER = "filter_picker/{filterId}"
 
 @Composable
@@ -380,12 +381,19 @@ fun DocspellApp(viewModel: AppViewModel) {
                         onClearAllOfflineData = viewModel::clearAllOfflineDocumentsGlobal,
                         onClearAllViewerCache = viewModel::clearViewerCacheGlobal,
                         onOpenLicenses = { navController.navigate(ROUTE_LICENSES) },
+                        onOpenPrivacy = { navController.navigate(ROUTE_PRIVACY) },
                         onAppLanguageChange = viewModel::onAppLanguageChange,
                         onBack = { navController.popBackStack() }
                     )
                 }
                 composable(ROUTE_LICENSES) {
                     LicensesScreen(
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+                composable(ROUTE_PRIVACY) {
+                    PrivacyPolicyScreen(
+                        appLanguage = settingsState.appLanguage,
                         onBack = { navController.popBackStack() }
                     )
                 }

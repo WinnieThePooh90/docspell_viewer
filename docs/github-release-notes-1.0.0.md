@@ -14,11 +14,11 @@ Erster öffentlicher Release (Sideload / GitHub-Release).
 
 - **Dokumente lesen:** Suche, Dokumentenliste mit Nachladen, Detailansicht, PDF-Viewer, Audio-Anhänge, Download einzelner Anhänge
 - **Offline & Favoriten:** Dokumente offline speichern und löschen; Favoriten markieren; eigene Listen pro Konto
-- **Mehrere Konten:** Beliebig viele Docspell-Server/Konten; getrennte Einstellungen, Offline-Daten und Favoriten je Konto
+- **Mehrere Konten:** Beliebig viele Docspell-Server/Konten; Tab **Konto**; getrennte Einstellungen, Offline-Daten und Favoriten je Konto
 - **Filter & Navigation:** Sidebar-Filter (Tags, Korrespondent, Kategorie, benutzerdefinierte Felder u. a.); konfigurierbare Startseite
-- **Einstellungen:** Farbschema, Dark Mode, Tabellengröße, Detailfelder, Filter, Sprache (DE/EN), Cache-/Offline-Verwaltung
-- **Session:** Automatischer Login beim Start; manueller Sync bei abgelaufener Session
-- **Open Source:** Apache-2.0; Lizenzen in der App
+- **Einstellungen** (Zahnrad): Farbschema, Dark Mode, Tabellengröße, Detailfelder, Filter, Sprache (DE/EN), Cache-/Offline-Verwaltung gesamt
+- **Session:** Automatischer Login beim Start; Session-Refresh im Hintergrund; Re-Login bei 401; Sync-Button als Fallback
+- **Datenschutz & Lizenzen:** Zahnrad → Einstellungen → Datenschutz / Lizenzen; Apache-2.0 für App-Code
 
 ## Nicht enthalten
 
@@ -34,8 +34,9 @@ Erster öffentlicher Release (Sideload / GitHub-Release).
 
 - Server ohne lokalen Login (nur OIDC) werden nicht unterstützt
 - Self-signed HTTPS kann je nach Gerätezertifikat fehlschlagen
-- Bei abgelaufener Session: Sync-Button oder App neu starten
+- Ungültige Zugangsdaten dauerhaft: Fehlermeldung; Konto prüfen oder Sync
 
 ---
 
-Vollständiger Changelog: [`CHANGELOG.md`](../CHANGELOG.md)
+Vollständiger Changelog: [`CHANGELOG.md`](../CHANGELOG.md)  
+Datenschutz: [`privacy-policy.md`](privacy-policy.md)

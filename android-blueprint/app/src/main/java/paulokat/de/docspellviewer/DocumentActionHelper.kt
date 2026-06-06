@@ -17,9 +17,15 @@ typealias BytesProgressCallback = (bytesRead: Long, contentLength: Long) -> Unit
 
 class DocumentActionHelper(
     private val context: Context,
-    private val tokenStore: TokenStore
+    private val tokenStore: TokenStore,
+    private val sessionManager: DocspellSessionManager
 ) {
-    private val httpClient = OkHttpClient()
+    private val httpClient: OkHttpClient by lazy {
+        DocspellApiFactory.createAuthenticatedClient(
+            tokenStore = tokenStore,
+            sessionManager = sessionManager
+        )
+    }
 
     suspend fun fetchPdfForViewer(
         pdfUrl: String,
@@ -38,15 +44,12 @@ class DocumentActionHelper(
                         return@runCatching file
                     }
                 }
-                val token = tokenStore.getToken()
-                if (token.isNullOrBlank()) {
-                    error(context.getString(R.string.error_not_logged_in))
-                }
+                requireAuthToken()
                 DocumentViewerCache.getCachedFileIfPresent(context, accountId, attachmentId)?.let { file ->
                     reportLoadedFile(file, onProgress)
                     return@runCatching file
                 }
-                downloadAndCachePdf(pdfUrl, accountId, attachmentId, token, onProgress)
+                downloadAndCachePdf(pdfUrl, accountId, attachmentId, onProgress)
             }
         }
     }
@@ -69,16 +72,10 @@ class DocumentActionHelper(
         url: String,
         onProgress: BytesProgressCallback?
     ): Result<ByteArray> {
-        val token = tokenStore.getToken()
-        if (token.isNullOrBlank()) {
-            return Result.failure(IllegalStateException(context.getString(R.string.error_not_logged_in)))
-        }
+        requireAuthToken()
         return withContext(Dispatchers.IO) {
             runCatching {
-                val request = Request.Builder()
-                    .url(url)
-                    .header("X-Docspell-Auth", token)
-                    .build()
+                val request = authenticatedRequest(url)
                 val response = httpClient.newCall(request).execute()
                 if (!response.isSuccessful) {
                     error(context.getString(R.string.error_download_http, response.code))
@@ -93,13 +90,9 @@ class DocumentActionHelper(
         pdfUrl: String,
         accountId: String,
         attachmentId: String,
-        token: String,
         onProgress: BytesProgressCallback?
     ): File {
-        val request = Request.Builder()
-            .url(pdfUrl)
-            .header("X-Docspell-Auth", token)
-            .build()
+        val request = authenticatedRequest(pdfUrl)
         val response = httpClient.newCall(request).execute()
         if (!response.isSuccessful) {
             error(context.getString(R.string.error_load_http, response.code))
@@ -149,10 +142,7 @@ class DocumentActionHelper(
         fileName: String,
         cacheSubDir: String = "attachments"
     ): Result<File> {
-        val token = tokenStore.getToken()
-        if (token.isNullOrBlank()) {
-            return Result.failure(IllegalStateException(context.getString(R.string.error_not_logged_in)))
-        }
+        requireAuthToken()
 
         return withContext(Dispatchers.IO) {
             runCatching {
@@ -165,10 +155,7 @@ class DocumentActionHelper(
                     return@runCatching cacheFile
                 }
 
-                val request = Request.Builder()
-                    .url(downloadUrl)
-                    .header("X-Docspell-Auth", token)
-                    .build()
+                val request = authenticatedRequest(downloadUrl)
                 val response = httpClient.newCall(request).execute()
                 if (!response.isSuccessful) {
                     error(context.getString(R.string.error_load_http, response.code))
@@ -181,17 +168,11 @@ class DocumentActionHelper(
     }
 
     suspend fun downloadToUri(downloadUrl: String, destinationUri: Uri): Result<String> {
-        val token = tokenStore.getToken()
-        if (token.isNullOrBlank()) {
-            return Result.failure(IllegalStateException(context.getString(R.string.error_not_logged_in)))
-        }
+        requireAuthToken()
 
         return withContext(Dispatchers.IO) {
             runCatching {
-                val request = Request.Builder()
-                    .url(downloadUrl)
-                    .header("X-Docspell-Auth", token)
-                    .build()
+                val request = authenticatedRequest(downloadUrl)
                 val response = httpClient.newCall(request).execute()
                 if (!response.isSuccessful) {
                     error(context.getString(R.string.error_download_http, response.code))
@@ -215,6 +196,20 @@ class DocumentActionHelper(
 
     fun showError(message: String) {
         toast(message)
+    }
+
+    private fun requireAuthToken() {
+        if (tokenStore.getToken().isNullOrBlank()) {
+            error(context.getString(R.string.error_not_logged_in))
+        }
+    }
+
+    private fun authenticatedRequest(url: String): Request {
+        val token = tokenStore.getToken().orEmpty()
+        return Request.Builder()
+            .url(url)
+            .header("X-Docspell-Auth", token)
+            .build()
     }
 
     private fun resolveDisplayName(uri: Uri): String? {

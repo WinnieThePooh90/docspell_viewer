@@ -73,6 +73,7 @@ fun SettingsScreen(
     onClearAllOfflineData: () -> Unit,
     onClearAllViewerCache: () -> Unit,
     onOpenLicenses: () -> Unit,
+    onOpenPrivacy: () -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -307,6 +308,13 @@ fun SettingsScreen(
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            OutlinedButton(
+                onClick = onOpenPrivacy,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.settings_privacy))
+            }
 
             OutlinedButton(
                 onClick = onOpenLicenses,

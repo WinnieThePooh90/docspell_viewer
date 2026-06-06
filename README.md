@@ -35,10 +35,10 @@ Release-Scope und Grenzen: [`docs/release-1.0.0-scope.md`](docs/release-1.0.0-sc
 - **Dokument:** Detailansicht, PDF-Viewer, Audio-Wiedergabe, Anhänge herunterladen
 - **Offline:** Dokumente lokal speichern und wieder entfernen; Offline-Liste im eigenen Tab
 - **Favoriten:** Markieren und gesonderte Favoriten-Liste
-- **Filter:** Sidebar (Tags, Organisation/Korrespondent, Kategorie, benutzerdefinierte Felder u. a.) — sichtbare Filter in den Einstellungen konfigurierbar
-- **Einstellungen:** Farbschema, Dark Mode, Startseite, Tabellengröße, Detailfelder, Sprache (DE/EN), Cache- und Offline-Verwaltung
-- **Sync:** Manueller Re-Login über Sync-Symbol (oben rechts), z. B. bei abgelaufener Session
-- **Lizenzen:** Open-Source-Hinweise in der App unter Einstellungen → Lizenzen
+- **Filter:** Sidebar (Tags, Organisation/Korrespondent, Kategorie, benutzerdefinierte Felder u. a.) — sichtbare Filter unter Zahnrad → Einstellungen konfigurierbar
+- **Einstellungen** (Zahnrad): Farbschema, Dark Mode, Startseite, Tabellengröße, Detailfelder, Filter, Sprache (DE/EN), Cache-/Offline-Verwaltung **gesamt**, Lizenzen, Datenschutz
+- **Session:** Automatischer Login beim Start; Session-Refresh im Hintergrund und Re-Login bei 401; **Sync** (oben rechts) als manueller Fallback
+- **Lizenzen & Datenschutz:** Zahnrad → Einstellungen ([Online auf GitHub](https://github.com/WinnieThePooh90/docspell_viewer/blob/main/docs/privacy-policy.md))
 
 Nicht enthalten: Upload, Metadaten bearbeiten, Admin-Funktionen — siehe [`docs/mvp-scope.md`](docs/mvp-scope.md).
 
@@ -46,9 +46,9 @@ Nicht enthalten: Upload, Metadaten bearbeiten, Admin-Funktionen — siehe [`docs
 
 Die App unterstützt **beliebig viele Docspell-Konten** (jeweils eigene Server-URL und Login):
 
-- Tab **Konto:** Konten anlegen, bearbeiten, aktivieren, löschen
+- Tab **Konto:** Konten anlegen, bearbeiten, aktivieren, löschen; Speicher **dieses Kontos** (Offline/Cache)
 - Beim **Wechsel** werden Offline-Daten, Favoriten und Einstellungen (Theme, Sprache, Filter, …) **pro Konto getrennt** gehalten
-- In den Einstellungen: Speicherplatz und Löschen **pro aktivem Konto** sowie **gesamt über alle Konten**
+- **Zahnrad → Einstellungen:** Speicherplatz und Löschen **gesamt über alle Konten**
 
 Passwörter werden verschlüsselt auf dem Gerät gespeichert und vom System-Backup ausgeschlossen (siehe `backup_rules.xml`).
 
@@ -63,7 +63,7 @@ POST /api/v1/open/auth/login
 
 **OIDC-only-Server** (lokaler Login deaktiviert) sind in Version 1.0.0 **nicht kompatibel**. Geplant für spätere Releases: klarere Fehlermeldung und ggf. OIDC-Unterstützung (Stufe B in [`docs/release-checklist.md`](docs/release-checklist.md)).
 
-Bei abgelaufener Session: **Sync** tippen oder App neu starten (Re-Login aus gespeichertem Konto).
+Die App erneuert die Session automatisch (`POST /sec/auth/session`) und meldet sich bei Bedarf mit gespeicherten Kontodaten wieder an. Der **Sync**-Button erzwingt einen erneuten Login, falls nötig.
 
 ## Inhalt des Repositories
 
@@ -75,6 +75,7 @@ Bei abgelaufener Session: **Sync** tippen oder App neu starten (Re-Login aus ges
 | [`docs/release-1.0.0-scope.md`](docs/release-1.0.0-scope.md) | Scope Version 1.0.0 |
 | [`docs/mvp-scope.md`](docs/mvp-scope.md) | MVP-Grenzen (Read-first) |
 | [`CHANGELOG.md`](CHANGELOG.md) | Versionshistorie |
+| [`docs/privacy-policy.md`](docs/privacy-policy.md) | Datenschutzerklärung (DE/EN) |
 
 ## App starten (Entwicklung)
 
@@ -124,7 +125,7 @@ Der **Quellcode dieser App** (Repository [`docspell_viewer`](https://github.com/
 Copyright © 2026 Karsten Paulokat
 
 - Vollständiger Lizenztext: [`LICENSE`](LICENSE) im Repository-Root
-- In der App: **Einstellungen → Lizenzen**
+- In der App: **Zahnrad → Einstellungen → Lizenzen**
 
 **Ausnahme — Launcher-Icons:** Die App-Icons stammen von [Docspell](https://github.com/eikek/docspell) (Artwork) und unterliegen der **GNU AGPL v3+**, nicht der Apache-Lizenz. Details und Quellverweis stehen in der App unter Lizenzen sowie in [`ThirdPartyNotices.kt`](android-blueprint/app/src/main/java/paulokat/de/docspellviewer/ThirdPartyNotices.kt).
 

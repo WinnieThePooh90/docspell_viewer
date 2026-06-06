@@ -201,7 +201,8 @@ data class SettingsUiState(
 class AppViewModel(
     private val appContext: Context,
     private val accountStore: AccountStore,
-    private val tokenStore: TokenStore
+    private val tokenStore: TokenStore,
+    private val sessionManager: DocspellSessionManager
 ) : ViewModel() {
 
     private var scopedStores: AccountScopedStores? = null
@@ -217,8 +218,9 @@ class AppViewModel(
         return scopedStores ?: error("No active account")
     }
 
-    private val documentActions = DocumentActionHelper(appContext, tokenStore)
+    private val documentActions = DocumentActionHelper(appContext, tokenStore, sessionManager)
     private val audioPlaybackHelper = AudioPlaybackHelper()
+    private var sessionRefreshJob: Job? = null
     private val _localeChangeEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val localeChangeEvent: SharedFlow<Unit> = _localeChangeEvent.asSharedFlow()
     private var localeAppliedForLanguage: AppLanguage? = null
@@ -287,6 +289,8 @@ class AppViewModel(
     private var activeCustomFieldName: String? = null
 
     init {
+        sessionManager.bindCredentials { activeServerSettings() }
+        sessionManager.onSessionUpdated = { onAuthTokenUpdated() }
         viewModelScope.launch {
             val active = accountStore.getActive()
             if (active != null) {
@@ -608,14 +612,14 @@ class AppViewModel(
                 bindActiveAccount(next, reloadPreferences = true)
                 refreshSettingsForm(next)
                 refreshStorageStats()
-                tokenStore.clear()
+                clearSession()
                 repository = null
                 showSettingsFeedback(str(R.string.feedback_account_deleted), isError = false)
                 autoLoginAndSearch(_homeState.value.query)
             } else {
                 scopedStores = null
                 activeAccount = null
-                tokenStore.clear()
+                clearSession()
                 repository = null
                 closeDocumentDetail()
                 closePdfViewer()
@@ -687,7 +691,7 @@ class AppViewModel(
             bindActiveAccount(saved, reloadPreferences = false)
             appPreferencesStore.save(preferences)
             applyAppPreferences(preferences)
-            tokenStore.clear()
+            clearSession()
             repository = null
             _homeState.value = _homeState.value.copy(
                 needsSettings = false,
@@ -728,7 +732,7 @@ class AppViewModel(
             return
         }
         accountStore.setActive(id)
-        tokenStore.clear()
+        clearSession()
         repository = null
         closeDocumentDetail()
         closePdfViewer()
@@ -862,6 +866,27 @@ class AppViewModel(
     private fun onAuthTokenUpdated() {
         clearThumbnailCaches()
         _thumbnailReloadGeneration.value++
+        scheduleSessionRefresh()
+    }
+
+    private fun scheduleSessionRefresh() {
+        sessionRefreshJob?.cancel()
+        val delayMs = sessionManager.millisUntilProactiveRefresh() ?: return
+        sessionRefreshJob = viewModelScope.launch {
+            delay(delayMs)
+            runCatching { sessionManager.refreshProactively() }
+            scheduleSessionRefresh()
+        }
+    }
+
+    private fun cancelSessionRefresh() {
+        sessionRefreshJob?.cancel()
+        sessionRefreshJob = null
+    }
+
+    private fun clearSession() {
+        cancelSessionRefresh()
+        sessionManager.clearSession()
     }
 
     private fun activeServerSettings(): ServerSettings? {
@@ -1118,25 +1143,24 @@ class AppViewModel(
             return false
         }
         if (repository != null && !tokenStore.getToken().isNullOrBlank()) {
+            runCatching { sessionManager.refreshProactively() }
             return true
         }
         return loginOnly(settings)
     }
 
     private suspend fun loginOnly(settings: ServerSettings): Boolean {
-        val api = DocspellApiFactory.create(settings.baseUrl, tokenStore)
+        val api = DocspellApiFactory.create(settings.baseUrl, tokenStore, sessionManager)
         val repo = DocspellRepository(api)
         val login = runCatching {
             repo.login(settings.account, settings.password)
         }.getOrElse { return false }
 
-        val token = login.token
-        if (!login.success || token.isNullOrBlank()) {
+        if (!login.success || login.token.isNullOrBlank()) {
             return false
         }
-        tokenStore.setToken(token)
+        sessionManager.applySession(login)
         repository = repo
-        onAuthTokenUpdated()
         return true
     }
 
@@ -1951,7 +1975,7 @@ class AppViewModel(
                 )
                 return@launch
             }
-            tokenStore.clear()
+            clearSession()
             repository = null
             autoLoginAndSearch(_homeState.value.query)
         }
@@ -1995,8 +2019,7 @@ class AppViewModel(
             return
         }
 
-        val token = login.token
-        if (!login.success || token.isNullOrBlank()) {
+        if (!login.success || login.token.isNullOrBlank()) {
             _homeState.value = _homeState.value.copy(
                 statusResId = R.string.status_login_failed,
                 statusQuery = null,
@@ -2006,9 +2029,8 @@ class AppViewModel(
             return
         }
 
-        tokenStore.setToken(token)
+        sessionManager.applySession(login)
         repository = repo
-        onAuthTokenUpdated()
         searchWithCurrentSession(query)
     }
 
@@ -2138,7 +2160,7 @@ class AppViewModel(
 
     private fun createRepository(baseUrl: String): DocspellRepository? {
         return runCatching {
-            DocspellRepository(DocspellApiFactory.create(baseUrl, tokenStore))
+            DocspellRepository(DocspellApiFactory.create(baseUrl, tokenStore, sessionManager))
         }.getOrElse { err ->
             _homeState.value = _homeState.value.copy(
                 statusResId = R.string.status_login_failed,
@@ -2172,6 +2194,8 @@ class DocspellRepository(
         """.trimIndent().toRequestBody("application/json; charset=utf-8".toMediaType())
         return api.login(body)
     }
+
+    suspend fun refreshSession(): LoginResponse = api.refreshSession()
 
     suspend fun loadTags(): List<TagRow> {
         val response = api.listTags(sort = "name")

@@ -2,10 +2,14 @@ package paulokat.de.docspellviewer
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.runBlocking
+import okhttp3.Authenticator
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.Response
+import okhttp3.Route
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
@@ -63,8 +67,63 @@ interface DocspellApi {
 }
 
 object DocspellApiFactory {
-    fun create(baseUrl: String, tokenStore: TokenStore): DocspellApi {
-        val authInterceptor = Interceptor { chain ->
+    private val moshi = Moshi.Builder()
+        .add(KotlinJsonAdapterFactory())
+        .build()
+
+    fun create(
+        baseUrl: String,
+        tokenStore: TokenStore,
+        sessionManager: DocspellSessionManager
+    ): DocspellApi {
+        val normalized = normalizeBaseUrl(baseUrl)
+        sessionManager.bindApiBaseUrl(normalized)
+        return buildRetrofit(
+            createAuthenticatedClient(tokenStore, sessionManager, normalized),
+            normalized
+        ).create(DocspellApi::class.java)
+    }
+
+    fun createPlain(baseUrl: String, tokenStore: TokenStore): DocspellApi {
+        return buildRetrofit(
+            createAuthClient(tokenStore),
+            normalizeBaseUrl(baseUrl)
+        ).create(DocspellApi::class.java)
+    }
+
+    fun createAuthenticatedClient(
+        tokenStore: TokenStore,
+        sessionManager: DocspellSessionManager,
+        defaultApiBaseUrl: String? = null
+    ): OkHttpClient {
+        return createAuthClient(tokenStore)
+            .newBuilder()
+            .authenticator(
+                DocspellAuthenticator(
+                    tokenStore = tokenStore,
+                    sessionManager = sessionManager,
+                    defaultApiBaseUrl = defaultApiBaseUrl?.let(::normalizeBaseUrl)
+                )
+            )
+            .build()
+    }
+
+    fun createAuthClient(tokenStore: TokenStore): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(createAuthInterceptor(tokenStore))
+            .build()
+    }
+
+    private fun buildRetrofit(client: OkHttpClient, baseUrl: String): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .client(client)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+    }
+
+    private fun createAuthInterceptor(tokenStore: TokenStore): Interceptor {
+        return Interceptor { chain ->
             val token = tokenStore.getToken()
             val request: Request = if (token.isNullOrBlank()) {
                 chain.request()
@@ -76,21 +135,69 @@ object DocspellApiFactory {
             }
             chain.proceed(request)
         }
+    }
 
-        val client = OkHttpClient.Builder()
-            .addInterceptor(authInterceptor)
-            .build()
+    private fun normalizeBaseUrl(baseUrl: String): String {
+        return if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/"
+    }
 
-        val moshi = Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
+    internal fun apiBaseUrlFromRequest(request: Request): String? {
+        val marker = "/api/v1/"
+        val path = request.url.encodedPath
+        val index = path.indexOf(marker)
+        if (index < 0) {
+            return null
+        }
+        val prefixPath = path.substring(0, index + marker.length)
+        return request.url.newBuilder()
+            .encodedPath(prefixPath)
+            .query(null)
+            .fragment(null)
             .build()
+            .toString()
+            .let { url -> if (url.endsWith("/")) url else "$url/" }
+    }
+}
 
-        return Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(client)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
+private class DocspellAuthenticator(
+    private val tokenStore: TokenStore,
+    private val sessionManager: DocspellSessionManager,
+    private val defaultApiBaseUrl: String? = null
+) : Authenticator {
+    override fun authenticate(route: Route?, response: Response): Request? {
+        if (response.code != 401 || responseCount(response) >= 2) {
+            return null
+        }
+        val path = response.request.url.encodedPath
+        if (path.contains("/open/auth/login") || path.contains("/sec/auth/session")) {
+            return null
+        }
+
+        val baseUrl = defaultApiBaseUrl
+            ?: DocspellApiFactory.apiBaseUrlFromRequest(response.request)
+            ?: return null
+
+        val recovered = runBlocking {
+            sessionManager.recoverFromUnauthorized(baseUrl)
+        }
+        if (!recovered) {
+            return null
+        }
+
+        val token = tokenStore.getToken()?.takeIf { it.isNotBlank() } ?: return null
+        return response.request.newBuilder()
+            .header("X-Docspell-Auth", token)
             .build()
-            .create(DocspellApi::class.java)
+    }
+
+    private fun responseCount(response: Response): Int {
+        var count = 1
+        var prior = response.priorResponse
+        while (prior != null) {
+            count++
+            prior = prior.priorResponse
+        }
+        return count
     }
 }
 

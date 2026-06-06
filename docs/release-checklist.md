@@ -22,21 +22,24 @@ Ziel: Signierte Release-APK, aktuelle Doku, keine offensichtlichen Sicherheits- 
 
 Reihenfolge: erst frische Installation, dann Upgrade-Szenario (falls möglich).
 
+Navigation: Tab **Konto** = Server-Login & Kontoverwaltung · **Zahnrad** (oben) = **Einstellungen** (Darstellung, Cache gesamt, Lizenzen, Datenschutz)
+
 - [x] Checkliste `docs/docspell-validation.md` komplett gegen euren Test-Server durchgehen
-- [x] Erstinstallation ohne Konto → Einstellungen → Konto anlegen → Login & Suche
+- [x] Erstinstallation ohne Konto → Tab **Konto** → Konto anlegen → speichern → Tab **Übersicht** → Login & Suche
 - [x] Dokumentliste, „Weitere laden“, Detail, PDF öffnen
 - [x] Offline speichern / löschen; Favorit setzen / entfernen
-- [x] Zweites Konto anlegen, **Konto wechseln**, Daten (Offline/Favoriten) getrennt prüfen
-- [x] Einstellungen: Cache/Offline **Benutzer** vs. **Gesamt** (Anzeige + Löschen)
+- [x] Zweites Konto anlegen, Tab **Konto** → **Konto wechseln**, Offline/Favoriten getrennt prüfen
+- [x] Cache/Offline **dieses Kontos** (Tab Konto → „Daten dieses Kontos“) vs. **gesamt** (Zahnrad → Einstellungen → Cache und Offlinedaten)
 - [x] App beenden & neu starten → automatische Anmeldung / Zustand ok
 - [x] Flugmodus / Server aus → verständliche Fehlermeldungen
-- [x] Einstellungen → **Lizenzen** öffnet und Inhalt vollständig lesbar
+- [x] Zahnrad → **Einstellungen** → **Lizenzen** und **Datenschutz** — Inhalt vollständig lesbar (DE/EN je nach App-Sprache)
+- [x] Abgelaufene Session: Auto-Refresh / Re-Login (Suche, Detail, PDF, Thumbnails); Sync als manueller Fallback
 
 ### A3 — Sicherheit (Minimum)
 
 - [x] `backup_rules.xml` + ggf. `data_extraction_rules.xml`: Passwörter vom System-Backup ausschließen (Rest inkl. Kontometadaten, Einstellungen, Offline, Favoriten)
 - [x] `AndroidManifest.xml`: `android:allowBackup` nur mit diesen Regeln belassen (oder bewusst dokumentieren)
-- [ ] Prüfen: kein Http-Logging / keine Passwörter in Logcat im Release-Build
+- [x] Prüfen: kein Http-Logging / keine Passwörter in Logcat im Release-Build (Code: kein `HttpLoggingInterceptor`; Logcat-Check Release-APK: Login, Suche, Sync — keine Passwörter/Tokens/OkHttp-Bodies)
 - [x] `androidx.security:security-crypto` — Version prüfen (Alpha vs. stabile Release-Version) → `1.1.0` stabil
 
 ### A4 — Release-Build
@@ -63,17 +66,16 @@ Reihenfolge: erst frische Installation, dann Upgrade-Szenario (falls möglich).
 - [x] `CHANGELOG.md` anlegen mit Eintrag **1.0.0**
 - [x] In README: Link zu `docs/docspell-validation.md` und `docs/release-checklist.md`
 - [x] Hinweis zu Docspell-Icons / AGPL in README oder Verweis auf In-App-Lizenzen
+- [x] Datenschutzerklärung (`docs/privacy-policy.md`) und In-App-Link Zahnrad → Einstellungen → Datenschutz
 
 ### A6 — Veröffentlichung Stufe A
 
 - [x] Git-Tag `v1.0.0` (optional, aber empfohlen)
-- [x] Release-APK als GitHub-Release anhängen (oder anderer Kanal) — Draft mit APK
+- [x] Release-APK als GitHub-Release anhängen (oder anderer Kanal)
 - [x] Release Notes aus `CHANGELOG.md` übernehmen → Vorlage [`docs/github-release-notes-1.0.0.md`](github-release-notes-1.0.0.md)
-- [ ] Kurz testen: Download + Installation der veröffentlichten APK (nach **Publish** des Drafts)
+- [x] Kurz testen: Download + Installation der veröffentlichten APK (nach **Publish** des Drafts)
 
-**Stufe A abgeschlossen, wenn A1–A6 durchgehend erledigt sind.**
-
-**Noch offen für A6-Abschluss:** Draft auf GitHub veröffentlichen (Release Notes einfügen, Tag `v1.0.0` wählen, **Publish release**), dann APK vom Release herunterladen und auf Gerät installieren.
+**Stufe A abgeschlossen** — A1–A6 erledigt (Release **1.0.0**). Release-APK ggf. aus aktuellem `main` neu bauen (`assembleRelease`), damit sie zum Stand der Doku passt — weiterhin `docspell_viewer_1.0.0.apk`.
 
 ---
 
@@ -83,31 +85,39 @@ Ziel: Längere Nutzung, Store-Richtlinien, Datenschutz, wartbarer Build-Prozess.
 
 ### B1 — Session & Robustheit
 
-- [ ] `validMs` / Ablauf des Tokens analysieren (Login-Response)
-- [ ] `refreshSession()` implementieren oder bei 401 automatisch Re-Login aus gespeicherten Kontodaten
-- [ ] Verhalten bei abgelaufenem Token in allen Hauptflows testen (Suche, Detail, PDF, Offline)
-- [ ] Optional: Hinweis in UI „Session abgelaufen — bitte erneut anmelden“
+- [x] `validMs` / Ablauf des Tokens analysieren (Login-Response) → `DocspellSessionManager`, Refresh 5 Min vor Ablauf
+- [x] `refreshSession()` implementieren oder bei 401 automatisch Re-Login aus gespeicherten Kontodaten → `POST sec/auth/session`, OkHttp-Authenticator, Fallback Login
+- [x] Verhalten bei abgelaufener Session in Hauptflows (Suche, Detail, PDF, Thumbnails) — proaktiver Refresh + 401-Retry
+- [x] ~~Optional: Hinweis in UI „Session abgelaufen …“~~ **entfällt** — Auto-Refresh/Re-Login im Hintergrund; nur bei totalem Fehlschlag greifen bestehende HTTP-401-Meldungen und manueller Sync
 
-### B2 — Kompatibilität & Grenzen
+**B1 abgeschlossen.**
 
-- [ ] Mit **zwei Docspell-Versionen** testen (falls möglich: ältere + aktuelle)
-- [ ] Server **ohne lokales Login** (nur OIDC): klare Meldung statt kryptischem Fehler
-- [ ] Self-signed / internes HTTPS: Verhalten dokumentieren (Zertifikat, Nutzerhinweis)
-- [ ] Große PDFs / viele Offline-Dokumente: Speicher & Performance stichprobenartig
+### ~~B2 — Kompatibilität & Grenzen~~ *(ausgeklammert — Solo-Entwicklung, derzeit nicht umsetzbar)*
 
-### B3 — Qualitätssicherung & Automatisierung
+> Bewusst zurückgestellt. Bekannte Limitierungen sind in README / `CHANGELOG.md` dokumentiert.
 
-- [ ] Mindestens wenige **Unit-Tests** (z. B. Query-Normalizer, URL-Builder, Migration)
-- [ ] Optional: ein **Instrumentierungs-Smoke-Test** (App startet, Einstellungen öffnen)
-- [ ] CI (z. B. GitHub Actions): `./gradlew assembleRelease` + Tests bei jedem Push/PR
-- [ ] Interne Regression-Checkliste aus A2 als Vorlage für Test-Releases nutzen
+- ~~Mit **zwei Docspell-Versionen** testen (falls möglich: ältere + aktuelle)~~
+- ~~Server **ohne lokales Login** (nur OIDC): klare Meldung statt kryptischem Fehler~~
+- ~~Self-signed / internes HTTPS: Verhalten dokumentieren (Zertifikat, Nutzerhinweis)~~
+- ~~Große PDFs / viele Offline-Dokumente: Speicher & Performance stichprobenartig~~
+
+### ~~B3 — Qualitätssicherung & Automatisierung~~ *(ausgeklammert — Solo-Entwicklung, derzeit nicht umsetzbar)*
+
+> Bewusst zurückgestellt. Manuelle Prüfung nach **A2** bleibt Referenz für Test-Releases.
+
+- ~~Mindestens wenige **Unit-Tests** (z. B. Query-Normalizer, URL-Builder, Migration)~~
+- ~~Optional: ein **Instrumentierungs-Smoke-Test** (App startet, Einstellungen öffnen)~~
+- ~~CI (z. B. GitHub Actions): `./gradlew assembleRelease` + Tests bei jedem Push/PR~~
+- ~~Interne Regression-Checkliste aus A2 als Vorlage für Test-Releases nutzen~~
 
 ### B4 — Datenschutz & Transparenz
 
-- [ ] Datenschutzerklärung schreiben (URL, statische Seite oder Repo-`docs/`)
-- [ ] Inhalt: welche Daten (Server-URL, Account, Passwort lokal, Offline-Cache, keine Weitergabe an Dritte außer Docspell-Server)
-- [ ] Buy-Me-a-Coffee-Link: in Datenschutz erwähnen (externer Dienst)
-- [ ] In App verlinken: Einstellungen → Datenschutz (optional, für Store oft Pflicht)
+- [x] Datenschutzerklärung schreiben → [`docs/privacy-policy.md`](privacy-policy.md), [`docs/privacy-policy.en.md`](privacy-policy.en.md), URL: [`SupportLinks.PRIVACY_POLICY_URL`](../android-blueprint/app/src/main/java/paulokat/de/docspellviewer/SupportLinks.kt)
+- [x] Inhalt: Server-URL, Konto, Passwort lokal verschlüsselt, Offline-Cache, nur Docspell-Server, kein Tracking
+- [x] Buy-Me-a-Coffee in Datenschutz erwähnt (externer Dienst)
+- [x] In App verlinkt: Zahnrad → Einstellungen → **Datenschutz** (`PrivacyPolicyScreen.kt`)
+
+**B4 abgeschlossen.**
 
 ### B5 — Google Play (falls Ziel = Play Store)
 
@@ -133,7 +143,8 @@ Ziel: Längere Nutzung, Store-Richtlinien, Datenschutz, wartbarer Build-Prozess.
 - [ ] Kanal für Nutzer-Feedback (Issue-Tracker, E-Mail)
 - [ ] Bekannte Limitationen in README pflegen (OIDC, Upload, Metadaten-Edit)
 
-**Stufe B abgeschlossen, wenn die gewählten Store-Ziele (B5 und/oder B6) plus B1–B4 erledigt sind.**
+**Stufe B abgeschlossen, wenn die gewählten Store-Ziele (B5 und/oder B6) plus B1 und B4 erledigt sind.**  
+*(B2 und B3 sind für Solo-Entwicklung ausgeklammert und kein Blocker.)*
 
 ---
 
@@ -142,7 +153,7 @@ Ziel: Längere Nutzung, Store-Richtlinien, Datenschutz, wartbarer Build-Prozess.
 ```text
 A1 Scope → A2 Testen → A3 Sicherheit → A4 Release-Build → A5 Doku → A6 Veröffentlichen
     ↓
-B1 Session → B2 Kompatibilität → B3 Tests/CI → B4 Datenschutz → B5 Play und/oder B6 F-Droid → B7 Wartung
+B1 Session → [B2/B3 ausgeklammert] → B4 Datenschutz → B5 Play und/oder B6 F-Droid → B7 Wartung
 ```
 
 ---
@@ -158,9 +169,10 @@ B1 Session → B2 Kompatibilität → B3 Tests/CI → B4 Datenschutz → B5 Play
 | App-Lizenz | `LICENSE` (Apache-2.0) |
 | Changelog | `CHANGELOG.md` |
 | GitHub Release Notes (1.0.0) | `docs/github-release-notes-1.0.0.md` |
+| Datenschutz | `docs/privacy-policy.md`, `PrivacyPolicy.kt`, `ui/PrivacyPolicyScreen.kt` |
 | Release-APK (Artefakt) | `android-blueprint/app/build/outputs/apk/release/docspell_viewer_1.0.0.apk` |
 | ProGuard / R8 | `android-blueprint/app/proguard-rules.pro` |
 | Release-Keystore (lokal) | `~/Nextcloud/Programmierung/Keys/docspell_viewer/` |
 | Manifest / Backup | `android-blueprint/app/src/main/AndroidManifest.xml` |
 | Lizenzen (in App) | `ThirdPartyNotices.kt`, `ui/LicensesScreen.kt` |
-| API / Session | `DocspellApi.kt`, `AppViewModel.kt` |
+| API / Session | `DocspellApi.kt`, `DocspellSessionManager.kt`, `AppViewModel.kt` |

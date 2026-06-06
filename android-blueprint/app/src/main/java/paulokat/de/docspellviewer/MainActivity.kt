@@ -22,7 +22,8 @@ class MainActivity : ComponentActivity() {
         val appCtx = applicationContext
         val accountStore = AccountStore(appCtx)
         val tokenStore = InMemoryTokenStore()
-        Coil.setImageLoader(DocspellImageLoader.create(appCtx, tokenStore))
+        val sessionManager = DocspellSessionManager(tokenStore = tokenStore)
+        Coil.setImageLoader(DocspellImageLoader.create(appCtx, tokenStore, sessionManager))
 
         val viewModelFactory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -30,7 +31,8 @@ class MainActivity : ComponentActivity() {
                 return AppViewModel(
                     appCtx,
                     accountStore,
-                    tokenStore
+                    tokenStore,
+                    sessionManager
                 ) as T
             }
         }

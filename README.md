@@ -35,6 +35,29 @@ Details zum Release-Scope: [`docs/release-1.0.0-scope.md`](docs/release-1.0.0-sc
 
 Build per CLI: `./gradlew assembleDebug` im Ordner `android-blueprint/` (Gradle Wrapper vorhanden).
 
+## Release-Build (signierte APK)
+
+Voraussetzung: Release-Keystore und `keystore.properties` (siehe `scripts/create_release_keystore.sh` und `android-blueprint/keystore.properties.example`).
+
+```bash
+cd android-blueprint
+./gradlew assembleRelease
+```
+
+| | |
+|--|--|
+| **APK-Dateiname** | `docspell_viewer_<versionName>.apk` (aktuell **`docspell_viewer_1.0.0.apk`**) |
+| **Artefakt-Pfad** | `android-blueprint/app/build/outputs/apk/release/docspell_viewer_1.0.0.apk` |
+| **Benennung in Gradle** | `android-blueprint/app/build.gradle.kts` (`appVersionName` → Dateiname) |
+
+Release-Build nutzt R8 (Code-Shrinking) und die Release-Signatur aus `keystore.properties`. Die APK liegt **nicht** im Git-Repo (`.gitignore`: `*.apk`); für GitHub-Releases manuell aus dem Build-Ordner anhängen.
+
+Installation auf Gerät (Debug-App ggf. vorher deinstallieren — andere Signatur):
+
+```bash
+adb install -r android-blueprint/app/build/outputs/apk/release/docspell_viewer_1.0.0.apk
+```
+
 ## Version
 
 Aktuell: **1.0.0** (`versionCode` 1) — siehe `android-blueprint/app/build.gradle.kts`

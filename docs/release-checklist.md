@@ -41,12 +41,20 @@ Reihenfolge: erst frische Installation, dann Upgrade-Szenario (falls möglich).
 
 ### A4 — Release-Build
 
-- [ ] Release-Keystore anlegen und **sicher** ablegen (nicht ins Git)
-- [ ] `signingConfigs` + `buildTypes { release { ... } }` in `app/build.gradle.kts` einrichten
-- [ ] `minifyEnabled` / R8 für Release aktivieren (Start: `true`, bei Problemen Regeln nachziehen)
-- [ ] `./gradlew assembleRelease` erfolgreich
-- [ ] Release-APK auf echtem Gerät installieren und **A2** kurz wiederholen (Smoke)
-- [ ] APK-Name / Artefakt-Pfad dokumentieren (z. B. `docspell_viewer_1.0.0.apk`)
+- [x] Release-Keystore anlegen und **sicher** ablegen (nicht ins Git)
+- [x] `signingConfigs` + `buildTypes { release { ... } }` in `app/build.gradle.kts` einrichten
+- [x] `minifyEnabled` / R8 für Release aktivieren (Start: `true`, bei Problemen Regeln nachziehen)
+- [x] `./gradlew assembleRelease` erfolgreich
+- [x] Release-APK auf echtem Gerät installieren und **A2** kurz wiederholen (Smoke)
+- [x] APK-Name / Artefakt-Pfad dokumentieren → [`README.md`](../README.md#release-build-signierte-apk)
+
+**Release-Artefakt (1.0.0):**
+
+| | |
+|--|--|
+| Dateiname | `docspell_viewer_1.0.0.apk` |
+| Pfad nach `./gradlew assembleRelease` | `android-blueprint/app/build/outputs/apk/release/docspell_viewer_1.0.0.apk` |
+| Benennung | `app/build.gradle.kts` — `docspell_viewer_$appVersionName.apk` |
 
 ### A5 — Dokumentation & Recht (Repository)
 
@@ -145,6 +153,9 @@ B1 Session → B2 Kompatibilität → B3 Tests/CI → B4 Datenschutz → B5 Play
 | Server-Validierung | `docs/docspell-validation.md` |
 | MVP-Scope | `docs/mvp-scope.md` |
 | Build / Version | `android-blueprint/app/build.gradle.kts` |
+| Release-APK (Artefakt) | `android-blueprint/app/build/outputs/apk/release/docspell_viewer_1.0.0.apk` |
+| ProGuard / R8 | `android-blueprint/app/proguard-rules.pro` |
+| Release-Keystore (lokal) | `~/Nextcloud/Programmierung/Keys/docspell_viewer/` |
 | Manifest / Backup | `android-blueprint/app/src/main/AndroidManifest.xml` |
 | Lizenzen (in App) | `ThirdPartyNotices.kt`, `ui/LicensesScreen.kt` |
 | API / Session | `DocspellApi.kt`, `AppViewModel.kt` |

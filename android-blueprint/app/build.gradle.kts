@@ -1,5 +1,7 @@
+import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -8,6 +10,16 @@ plugins {
 }
 
 val appVersionName = "1.0.0"
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+    .takeIf { it.exists() }
+    ?: File(System.getProperty("user.home"), "Nextcloud/Programmierung/Keys/docspell_viewer/keystore.properties")
+        .takeIf { it.exists() }
+
+val keystoreProperties = Properties()
+if (keystorePropertiesFile != null) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
 
 android {
     namespace = "paulokat.de.docspellviewer"
@@ -21,6 +33,31 @@ android {
         versionName = appVersionName
         val buildStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         buildConfigField("String", "BUILD_STAMP", "\"$buildStamp\"")
+    }
+
+    signingConfigs {
+        if (keystorePropertiesFile != null) {
+            create("release") {
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            if (keystorePropertiesFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
     }
 
     buildFeatures {

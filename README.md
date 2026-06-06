@@ -136,5 +136,3 @@ Drittanbieter-Bibliotheken (AndroidX, Kotlin, Retrofit, Moshi, Coil, …) sind �
 Dir gefällt die App? Du möchtest meine Arbeit ein bisschen unterstützen? Darüber würde ich mich sehr freuen :)
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://buymeacoffee.com/KarstenPaulokat)
-
-Freiwillig — [buymeacoffee.com/KarstenPaulokat](https://buymeacoffee.com/KarstenPaulokat) ist ein externer Dienst; die App übergibt dabei keine Docspell-Daten (siehe auch [`docs/privacy-policy.md`](docs/privacy-policy.md)).

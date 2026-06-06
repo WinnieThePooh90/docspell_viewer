@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Docspell Viewer</string>
+
+    <!-- Language -->
+    <string name="language_section_title">Sprache</string>
+    <string name="language_section_hint">Sprache der App-Oberfläche</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_english">Englisch</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_appearance">Erscheinungsbild</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_dark_mode_hint">Dunkle Oberflächen für das gewählte Farbschema</string>
+    <string name="settings_page_size">Tabelleneinträge</string>
+    <string name="settings_page_size_hint">Anzahl Dokumente pro Seite, bevor „Weitere laden“ erscheint.</string>
+    <string name="settings_start_page">Startseite</string>
+    <string name="start_page_search">Dokumentenübersicht</string>
+    <string name="settings_detail_fields">Datenfelder</string>
+    <string name="settings_detail_fields_hint">Welche Felder in der Detailansicht angezeigt werden, wenn sie vorhanden sind.</string>
+    <string name="settings_filters">Filter</string>
+    <string name="settings_filters_hint">Welche Filter in der Sidebar angezeigt werden.</string>
+    <string name="settings_cache_offline">Cache und Offlinedaten (alle Konten)</string>
+    <string name="settings_offline_storage">Speicherplatz Offline-Daten:</string>
+    <string name="settings_viewer_cache">Viewer-Cache:</string>
+    <string name="settings_delete_data">Daten löschen</string>
+    <string name="settings_clear_cache">Cache löschen</string>
+    <string name="settings_support">Unterstützung</string>
+    <string name="settings_support_hint">Dir gefällt die App? Du möchtest mich ein bisschen unterstützen? Darüber würde ich mich sehr freuen :)</string>
+    <string name="settings_licenses">Lizenzen</string>
+    <string name="settings_save">Speichern</string>
+    <string name="settings_build">Build: %1$s</string>
+    <plurals name="settings_offline_documents">
+        <item quantity="one">%d Dokument offline gespeichert</item>
+        <item quantity="other">%d Dokumente offline gespeichert</item>
+    </plurals>
+
+    <!-- Color schemes -->
+    <string name="color_scheme_grayscale">Schwarz-Weiß</string>
+    <string name="color_scheme_violet">Violett</string>
+    <string name="color_scheme_blue">Blau</string>
+    <string name="color_scheme_green">Grün</string>
+
+    <!-- Docspell metadata fields (detail + filters) -->
+    <string name="field_custom_fields">Benutzerdefinierte Felder</string>
+    <string name="field_document_date">Dokumentdatum</string>
+    <string name="field_organization">Organisation</string>
+    <string name="field_tags">Tags</string>
+    <string name="field_attachments">Anhänge</string>
+    <string name="field_created">Datum erstellt</string>
+    <string name="field_updated">Datum geändert</string>
+    <string name="field_source">Quelle</string>
+    <string name="field_folder">Ordner</string>
+    <string name="field_direction">Richtung</string>
+    <string name="field_state">Status</string>
+    <string name="field_due_date">Fälligkeitsdatum</string>
+    <string name="field_notes">Notizen</string>
+    <string name="field_person">Person</string>
+    <string name="field_equipment">Ausstattung</string>
+    <string name="field_category">Kategorie</string>
+
+    <!-- Filter sidebar -->
+    <string name="filter_title">Filtern</string>
+    <string name="filter_none_active">Keine Filter aktiv. Aktivieren Sie Filter unter Einstellungen → Filter.</string>
+
+    <!-- Main tabs -->
+    <string name="tab_overview">Übersicht</string>
+    <string name="tab_offline">Offline</string>
+    <string name="tab_favorites">Favoriten</string>
+    <string name="tab_account">Account</string>
+
+    <!-- Home / search -->
+    <string name="home_search_hint">Suche — leer = neueste Dokumente</string>
+    <string name="home_column_document">Dokument</string>
+    <string name="home_column_correspondent">Korrespondent</string>
+    <string name="home_no_documents">Keine Dokumente gefunden</string>
+    <string name="home_load_more">Weitere laden</string>
+    <string name="home_hits_summary">Treffer: %1$d/%2$d</string>
+    <string name="status_create_account">Bitte Konto anlegen</string>
+    <string name="status_not_configured">Nicht konfiguriert</string>
+    <string name="status_logging_in">Anmeldung…</string>
+    <string name="status_login_failed">Login fehlgeschlagen</string>
+    <string name="status_searching">Suche…</string>
+    <string name="status_search_error">Suchfehler</string>
+    <string name="status_latest_documents">Neueste Dokumente</string>
+
+    <!-- Lists -->
+    <string name="favorites_empty">Keine Favoriten</string>
+    <string name="offline_empty">Keine Offline-Dokumente</string>
+
+    <!-- Picker -->
+    <string name="picker_tags">Tags</string>
+    <string name="picker_organization">Organisation</string>
+    <string name="picker_category">Kategorie</string>
+    <string name="picker_no_entries">Keine Einträge</string>
+    <string name="picker_any_value">Beliebiger Wert</string>
+    <string name="picker_field_set">Feld ist gesetzt</string>
+    <string name="picker_section_uncategorized">Ohne Kategorie</string>
+    <string name="cd_picker_show_tiles">Kachelansicht</string>
+    <string name="cd_picker_show_list">Listenansicht</string>
+    <string name="correspondent_type_organization">Organisation</string>
+    <string name="correspondent_type_person">Person</string>
+
+    <!-- Direction values -->
+    <string name="direction_incoming">Eingehend</string>
+    <string name="direction_outgoing">Ausgehend</string>
+
+    <!-- Custom field types -->
+    <string name="custom_field_type_text">Text</string>
+    <string name="custom_field_type_numeric">Zahl</string>
+    <string name="custom_field_type_money">Geld</string>
+    <string name="custom_field_type_date">Datum</string>
+    <string name="custom_field_type_bool">Ja/Nein</string>
+
+    <!-- Document detail -->
+    <string name="detail_default_title">Dokument</string>
+    <string name="detail_loading">Details werden geladen…</string>
+    <string name="detail_saving_offline">Wird offline gespeichert…</string>
+    <string name="detail_no_metadata">Keine weiteren Metadaten vorhanden.</string>
+    <string name="detail_attachments">Anhänge</string>
+    <string name="detail_favorite_added">Zu Favoriten hinzugefügt</string>
+    <string name="detail_favorite_removed">Aus Favoriten entfernt</string>
+    <string name="detail_delete_offline">Lokale Datei löschen</string>
+    <string name="detail_make_offline">Offline verfügbar machen</string>
+    <string name="cd_preview">Vorschau %1$s</string>
+    <string name="cd_page">Seite %1$d</string>
+    <string name="cd_play">Abspielen</string>
+    <string name="cd_pause">Pause</string>
+    <string name="cd_remove_favorite">Aus Favoriten entfernen</string>
+    <string name="cd_add_favorite">Zu Favoriten hinzufügen</string>
+
+    <!-- PDF / loading -->
+    <string name="document_loading">Dokument wird geladen</string>
+    <string name="pdf_render_failed">PDF konnte nicht angezeigt werden</string>
+
+    <!-- Accounts -->
+    <string name="accounts_title">Konten</string>
+    <string name="accounts_active">Aktiv</string>
+    <string name="accounts_activate">Aktivieren</string>
+    <string name="accounts_add">Konto hinzufügen</string>
+    <string name="accounts_delete">Konto löschen</string>
+    <string name="accounts_delete_title">Konto löschen?</string>
+    <string name="accounts_delete_message">Offline-Daten und Favoriten dieses Kontos werden gelöscht.</string>
+    <string name="accounts_cancel">Abbrechen</string>
+    <string name="accounts_delete_confirm">Löschen</string>
+    <string name="accounts_new">Neues Konto</string>
+    <string name="accounts_edit">Konto bearbeiten</string>
+    <string name="accounts_display_name">Anzeigename (optional)</string>
+    <string name="accounts_server_url">Server-URL (mit /api/v1/)</string>
+    <string name="accounts_account">Account</string>
+    <string name="accounts_password">Passwort</string>
+    <string name="accounts_show_password">Passwort anzeigen</string>
+    <string name="accounts_account_data">Daten dieses Kontos</string>
+    <plurals name="accounts_offline_documents">
+        <item quantity="one">%d Dokument offline gespeichert</item>
+        <item quantity="other">%d Dokumente offline gespeichert</item>
+    </plurals>
+
+    <!-- Content descriptions -->
+    <string name="cd_search">Suchen</string>
+    <string name="cd_skip_backward">10 Sekunden zurück</string>
+    <string name="cd_skip_forward">10 Sekunden vor</string>
+    <string name="cd_back">Zurück</string>
+    <string name="cd_move_up">Nach oben</string>
+    <string name="cd_move_down">Nach unten</string>
+    <string name="cd_close_sidebar">Sidebar schließen</string>
+    <string name="cd_filter">Filter</string>
+    <string name="cd_sync">Verbindung erneuern</string>
+    <string name="cd_settings">Einstellungen</string>
+    <string name="cd_favorite">Favorit</string>
+    <string name="cd_offline">Offline</string>
+    <string name="cd_play_audio">Player öffnen</string>
+
+    <!-- Settings feedback -->
+    <string name="feedback_offline_deleted">Offline-Daten gelöscht</string>
+    <string name="feedback_all_offline_deleted">Alle Offline-Daten gelöscht</string>
+    <string name="feedback_cache_cleared">Cache geleert</string>
+    <string name="feedback_all_cache_cleared">Gesamter Cache geleert</string>
+    <string name="feedback_no_account">Kein Konto ausgewählt.</string>
+    <string name="feedback_saved">Gespeichert</string>
+    <string name="feedback_account_deleted">Konto gelöscht</string>
+    <string name="feedback_fill_all_fields">Bitte alle Felder ausfüllen.</string>
+    <string name="feedback_invalid_base_url">Ungültige Server-URL. Bitte eine vollständige Adresse mit http:// oder https:// eingeben (z. B. https://server.example/api/v1/).</string>
+
+    <!-- Errors: steps -->
+    <string name="error_step_tags">Tags laden</string>
+    <string name="error_step_organizations">Organisationen laden</string>
+    <string name="error_step_categories">Kategorien laden</string>
+    <string name="error_step_custom_fields">Benutzerdefinierte Felder laden</string>
+    <string name="error_step_filter">%1$s laden</string>
+    <string name="error_step_details">Details laden</string>
+    <string name="error_step_login">Login</string>
+    <string name="error_step_load_more">Nachladen</string>
+    <string name="error_step_search">Suche</string>
+    <string name="error_unknown">Unbekannter Fehler</string>
+    <string name="error_http_format">%1$s: HTTP %2$d (%3$s)</string>
+    <string name="error_format">%1$s: %2$s</string>
+
+    <!-- HTTP hints -->
+    <string name="http_hint_400">mögliche Ursachen: ungültige Such- oder Filtersyntax; Anfrage vom Server abgelehnt</string>
+    <string name="http_hint_401">mögliche Ursachen: Session abgelaufen oder Token ungültig; erneut anmelden oder Sync nutzen</string>
+    <string name="http_hint_403">mögliche Ursachen: keine Berechtigung; falsches Konto/Kollektiv; Zugriff vom Server verweigert</string>
+    <string name="http_hint_404">mögliche Ursachen: falsche Server-URL; API-Pfad fehlt (z. B. …/api/v1/); Ressource existiert nicht</string>
+    <string name="http_hint_408">mögliche Ursachen: Zeitüberschreitung; Server antwortet zu langsam oder nicht erreichbar</string>
+    <string name="http_hint_429">mögliche Ursachen: zu viele Anfragen; kurz warten und erneut versuchen</string>
+    <string name="http_hint_502">mögliche Ursachen: Gateway-Fehler; Reverse-Proxy oder Docspell-Backend prüfen</string>
+    <string name="http_hint_503">mögliche Ursachen: Dienst vorübergehend nicht verfügbar; Server/Wartung prüfen</string>
+    <string name="http_hint_504">mögliche Ursachen: Gateway-Timeout; Server überlastet oder Netzwerk langsam</string>
+    <string name="http_hint_5xx">mögliche Ursachen: interner Serverfehler; Docspell-Logs und Serverstatus prüfen</string>
+    <string name="http_hint_other">mögliche Ursachen: Server hat mit unerwartetem Status geantwortet; URL, Netzwerk und Konfiguration prüfen</string>
+
+    <!-- User-facing errors -->
+    <string name="error_login_check_settings">Anmeldung fehlgeschlagen. Bitte Einstellungen prüfen.</string>
+    <string name="error_no_picker">Für dieses Feld ist keine Auswahl verfügbar.</string>
+    <string name="error_no_custom_fields">Keine benutzerdefinierten Felder definiert. Legen Sie Felder in Docspell unter „Daten verwalten“ an.</string>
+    <string name="error_filter_invalid">Filter konnte nicht in eine gültige Suche umgesetzt werden.</string>
+    <string name="error_no_server_data">Keine Serverdaten.</string>
+    <string name="error_no_server_data_settings">Keine Serverdaten. Bitte Einstellungen öffnen.</string>
+    <string name="error_not_logged_in">Nicht angemeldet.</string>
+    <string name="error_open_settings">Bitte Einstellungen öffnen.</string>
+    <string name="error_invalid_credentials">Zugangsdaten ungültig.</string>
+    <string name="error_no_pdf_offline">Kein PDF zum Offline-Speichern vorhanden.</string>
+    <string name="error_offline_save_failed">Offline-Speichern fehlgeschlagen</string>
+    <string name="error_offline_available">Offline verfügbar</string>
+    <string name="error_local_file_deleted">Lokale Datei gelöscht</string>
+    <string name="error_audio_not_offline">Audio nicht offline gespeichert.</string>
+    <string name="error_audio_load_failed">Audio konnte nicht geladen werden</string>
+    <string name="error_playback_failed">Wiedergabe fehlgeschlagen</string>
+    <string name="error_no_attachment_open">Kein Anhang zum Öffnen vorhanden.</string>
+    <string name="error_no_active_account">Kein Konto aktiv.</string>
+    <string name="error_no_server">Kein Server konfiguriert.</string>
+    <string name="error_load_failed">Laden fehlgeschlagen</string>
+    <string name="error_no_attachment_download">Kein Anhang zum Herunterladen vorhanden.</string>
+    <string name="error_download_failed">Download fehlgeschlagen</string>
+    <string name="error_download_http">Download fehlgeschlagen: HTTP %1$d</string>
+    <string name="error_load_http">Laden fehlgeschlagen: HTTP %1$d</string>
+    <string name="error_empty_response">Leere Antwort</string>
+    <string name="error_file_write_failed">Datei konnte nicht geschrieben werden</string>
+    <string name="toast_saved_as">Gespeichert: %1$s</string>
+</resources>

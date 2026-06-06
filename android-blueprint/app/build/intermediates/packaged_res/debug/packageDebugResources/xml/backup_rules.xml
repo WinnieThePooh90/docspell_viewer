@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Passwords live in docspell_account_secrets (excluded).
+  All other app data — accounts metadata, settings, offline, favorites — is backed up.
+-->
+<full-backup-content>
+    <include domain="sharedpref" path="." />
+    <include domain="file" path="." />
+    <exclude domain="sharedpref" path="docspell_account_secrets.xml" />
+    <exclude domain="sharedpref" path="docspell_server_settings.xml" />
+</full-backup-content>

@@ -1,43 +1,98 @@
 # Docspell Viewer (Android)
 
-Android-App (**Kotlin + Compose**) zum Lesen und Durchsuchen von Dokumenten auf einem **eigenen Docspell-Server** über die REST-API v1.
+Android-App (**Kotlin + Jetpack Compose**) zum Lesen und Durchsuchen von Dokumenten auf einem **eigenen Docspell-Server** über die REST-API v1.
 
 ## Voraussetzungen
 
-- Docspell-Server mit erreichbarer URL `https://<host>/api/v1/`
-- **Lokaler Account-Login** (`collective/user` + Passwort) auf dem Server aktiv  
-- **Nicht unterstützt in 1.0.0:** OIDC/OAuth2 (Login nur über externen Provider ohne lokales Passwort)
+| | |
+|--|--|
+| **Android** | 8.0 (API 26) oder höher |
+| **Docspell-Server** | Erreichbare URL `https://<host>/api/v1/` |
+| **Anmeldung** | **Lokaler Account-Login** (`collective/user` + Passwort) auf dem Server muss aktiv sein |
+| **Nicht unterstützt in 1.0.0** | **OIDC / OAuth2** — Server, die nur externen Login (Google, Keycloak, …) erlauben und kein lokales Passwort, funktionieren **nicht** |
 
-Details zum Release-Scope: [`docs/release-1.0.0-scope.md`](docs/release-1.0.0-scope.md)
+Vor dem Einsatz den Server prüfen: [`docs/docspell-validation.md`](docs/docspell-validation.md) (Abschnitt 1.3: lokaler Login vs. OIDC).
 
-## Funktionen (Auszug)
+Release-Scope und Grenzen: [`docs/release-1.0.0-scope.md`](docs/release-1.0.0-scope.md)
 
-- Suche und Dokumentliste (mit Nachladen)
-- Detailansicht, PDF-Viewer, Audio-Anhänge, Download
-- Offline-Speicherung, Favoriten, mehrere Konten
-- Einstellungen (Theme, Felder, Cache/Offline pro Konto und gesamt)
-- Open-Source-Hinweise in der App (Lizenzen)
+## Installation (Release-APK)
+
+1. Signierte APK aus dem [GitHub-Release](https://github.com/WinnieThePooh90/docspell_viewer/releases) herunterladen (`docspell_viewer_1.0.0.apk`).
+2. Auf dem Gerät **Installation aus unbekannten Quellen** für den verwendeten Browser/Dateimanager erlauben (falls noch nicht geschehen).
+3. APK öffnen und installieren.  
+   Alternativ per ADB:
+   ```bash
+   adb install -r docspell_viewer_1.0.0.apk
+   ```
+4. App starten → Tab **Konto** → Server-URL, Anzeigename, `collective/user` und Passwort eintragen → speichern.
+5. Tab **Übersicht**: Suche (leer lassen für neueste Dokumente oder z. B. `*`).
+
+**Hinweis:** Debug- und Release-APK haben unterschiedliche Signaturen — vor Installation einer Release-APK ggf. eine Debug-Version deinstallieren.
+
+## Funktionen
+
+- **Suche & Liste:** Docspell-Query, Paginierung („Weitere laden“), Trefferanzahl, Korrespondent als Filter anklickbar
+- **Dokument:** Detailansicht, PDF-Viewer, Audio-Wiedergabe, Anhänge herunterladen
+- **Offline:** Dokumente lokal speichern und wieder entfernen; Offline-Liste im eigenen Tab
+- **Favoriten:** Markieren und gesonderte Favoriten-Liste
+- **Filter:** Sidebar (Tags, Organisation/Korrespondent, Kategorie, benutzerdefinierte Felder u. a.) — sichtbare Filter in den Einstellungen konfigurierbar
+- **Einstellungen:** Farbschema, Dark Mode, Startseite, Tabellengröße, Detailfelder, Sprache (DE/EN), Cache- und Offline-Verwaltung
+- **Sync:** Manueller Re-Login über Sync-Symbol (oben rechts), z. B. bei abgelaufener Session
+- **Lizenzen:** Open-Source-Hinweise in der App unter Einstellungen → Lizenzen
+
+Nicht enthalten: Upload, Metadaten bearbeiten, Admin-Funktionen — siehe [`docs/mvp-scope.md`](docs/mvp-scope.md).
+
+## Mehrere Konten
+
+Die App unterstützt **beliebig viele Docspell-Konten** (jeweils eigene Server-URL und Login):
+
+- Tab **Konto:** Konten anlegen, bearbeiten, aktivieren, löschen
+- Beim **Wechsel** werden Offline-Daten, Favoriten und Einstellungen (Theme, Sprache, Filter, …) **pro Konto getrennt** gehalten
+- In den Einstellungen: Speicherplatz und Löschen **pro aktivem Konto** sowie **gesamt über alle Konten**
+
+Passwörter werden verschlüsselt auf dem Gerät gespeichert und vom System-Backup ausgeschlossen (siehe `backup_rules.xml`).
+
+## Authentifizierung (kein OIDC)
+
+Unterstützt wird ausschließlich:
+
+```
+POST /api/v1/open/auth/login
+→ Token im Header X-Docspell-Auth
+```
+
+**OIDC-only-Server** (lokaler Login deaktiviert) sind in Version 1.0.0 **nicht kompatibel**. Geplant für spätere Releases: klarere Fehlermeldung und ggf. OIDC-Unterstützung (Stufe B in [`docs/release-checklist.md`](docs/release-checklist.md)).
+
+Bei abgelaufener Session: **Sync** tippen oder App neu starten (Re-Login aus gespeichertem Konto).
 
 ## Inhalt des Repositories
 
-- [`android-blueprint/`](android-blueprint/) — Android-Projekt
-- [`docs/docspell-validation.md`](docs/docspell-validation.md) — Validierung gegen einen Docspell-Server
-- [`docs/release-checklist.md`](docs/release-checklist.md) — Release-Checkliste Stufe A / B
-- [`docs/release-1.0.0-scope.md`](docs/release-1.0.0-scope.md) — Scope und Version 1.0.0
-- [`docs/mvp-scope.md`](docs/mvp-scope.md) — MVP-Grenzen (Read-first)
+| Pfad | Inhalt |
+|------|--------|
+| [`android-blueprint/`](android-blueprint/) | Android-Projekt (Gradle) |
+| [`docs/docspell-validation.md`](docs/docspell-validation.md) | Server-Validierung gegen Docspell |
+| [`docs/release-checklist.md`](docs/release-checklist.md) | Release-Checkliste Stufe A / B |
+| [`docs/release-1.0.0-scope.md`](docs/release-1.0.0-scope.md) | Scope Version 1.0.0 |
+| [`docs/mvp-scope.md`](docs/mvp-scope.md) | MVP-Grenzen (Read-first) |
+| [`CHANGELOG.md`](CHANGELOG.md) | Versionshistorie |
 
 ## App starten (Entwicklung)
 
-1. In Android Studio: `android-blueprint/` öffnen, Gradle Sync
+1. In Android Studio: Ordner `android-blueprint/` öffnen, Gradle Sync
 2. Emulator oder Gerät wählen, App starten
-3. Einstellungen → Konto: Server-URL, Account, Passwort speichern
-4. Startseite: Suche (z. B. leer für neueste Dokumente oder `*`)
+3. Tab **Konto** → Server-URL, Account, Passwort speichern
+4. Tab **Übersicht** → Suche
 
-Build per CLI: `./gradlew assembleDebug` im Ordner `android-blueprint/` (Gradle Wrapper vorhanden).
+Build per CLI:
+
+```bash
+cd android-blueprint
+./gradlew assembleDebug
+```
 
 ## Release-Build (signierte APK)
 
-Voraussetzung: Release-Keystore und `keystore.properties` (siehe `scripts/create_release_keystore.sh` und `android-blueprint/keystore.properties.example`).
+Voraussetzung: Release-Keystore und `keystore.properties` (siehe [`scripts/create_release_keystore.sh`](scripts/create_release_keystore.sh) und `android-blueprint/keystore.properties.example`).
 
 ```bash
 cd android-blueprint
@@ -60,4 +115,17 @@ adb install -r android-blueprint/app/build/outputs/apk/release/docspell_viewer_1
 
 ## Version
 
-Aktuell: **1.0.0** (`versionCode` 1) — siehe `android-blueprint/app/build.gradle.kts`
+Aktuell: **1.0.0** (`versionCode` 1) — siehe [`CHANGELOG.md`](CHANGELOG.md) und `android-blueprint/app/build.gradle.kts`
+
+## Lizenz
+
+Der **Quellcode dieser App** (Repository [`docspell_viewer`](https://github.com/WinnieThePooh90/docspell_viewer)) steht unter der **[Apache License 2.0](LICENSE)** (`SPDX: Apache-2.0`).
+
+Copyright © 2026 Karsten Paulokat
+
+- Vollständiger Lizenztext: [`LICENSE`](LICENSE) im Repository-Root
+- In der App: **Einstellungen → Lizenzen**
+
+**Ausnahme — Launcher-Icons:** Die App-Icons stammen von [Docspell](https://github.com/eikek/docspell) (Artwork) und unterliegen der **GNU AGPL v3+**, nicht der Apache-Lizenz. Details und Quellverweis stehen in der App unter Lizenzen sowie in [`ThirdPartyNotices.kt`](android-blueprint/app/src/main/java/paulokat/de/docspellviewer/ThirdPartyNotices.kt).
+
+Drittanbieter-Bibliotheken (AndroidX, Kotlin, Retrofit, Moshi, Coil, …) sind überwiegend Apache 2.0; Attribution in der App und in `ThirdPartyNotices.kt`.

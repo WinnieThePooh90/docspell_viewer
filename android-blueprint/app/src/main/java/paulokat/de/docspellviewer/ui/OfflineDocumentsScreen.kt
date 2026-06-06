@@ -34,6 +34,7 @@ import paulokat.de.docspellviewer.PdfViewerUiState
 fun OfflineDocumentsContent(
     state: OfflineListUiState,
     pdfViewerState: PdfViewerUiState,
+    imageReloadGeneration: Int,
     onOpenDocument: (DocumentRow) -> Unit,
     onOpenDetail: (DocumentRow) -> Unit
 ) {
@@ -95,6 +96,7 @@ fun OfflineDocumentsContent(
                                 DocumentThumbnail(
                                     previewUrl = doc.previewUrl,
                                     contentDescription = stringResource(R.string.cd_preview, doc.name),
+                                    imageReloadGeneration = imageReloadGeneration,
                                     showOfflineFlag = true,
                                     showFavoriteFlag = doc.isFavorite,
                                     isOpeningDocument = pdfViewerState.isOpeningDocument(doc.id),

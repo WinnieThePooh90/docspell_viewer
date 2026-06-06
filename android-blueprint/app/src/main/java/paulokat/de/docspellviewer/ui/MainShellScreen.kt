@@ -65,6 +65,7 @@ fun MainShellScreen(
     favoritesState: FavoritesListUiState,
     accountsState: SettingsUiState,
     pdfViewerState: PdfViewerUiState,
+    imageReloadGeneration: Int,
     needsAccountSetup: Boolean,
     onOpenFilter: (SidebarFilterId) -> Unit,
     onOpenSettings: () -> Unit,
@@ -186,12 +187,14 @@ fun MainShellScreen(
                     MainTab.Offline -> OfflineDocumentsContent(
                         state = offlineState,
                         pdfViewerState = pdfViewerState,
+                        imageReloadGeneration = imageReloadGeneration,
                         onOpenDocument = onOpenDocument,
                         onOpenDetail = onOpenDetail
                     )
                     MainTab.Favorites -> FavoritesDocumentsContent(
                         state = favoritesState,
                         pdfViewerState = pdfViewerState,
+                        imageReloadGeneration = imageReloadGeneration,
                         onOpenDocument = onOpenDocument,
                         onOpenDetail = onOpenDetail
                     )

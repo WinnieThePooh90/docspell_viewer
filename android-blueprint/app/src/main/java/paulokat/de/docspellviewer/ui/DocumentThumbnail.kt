@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import paulokat.de.docspellviewer.ThumbnailColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,15 +52,52 @@ fun DocumentThumbnail(
     showFavoriteFlag: Boolean = false,
     attachmentCount: Int = 0,
     isOpeningDocument: Boolean = false,
-    openProgressPercent: Int = 0
+    openProgressPercent: Int = 0,
+    imageReloadGeneration: Int = 0,
+) {
+    key(previewUrl, imageReloadGeneration) {
+        DocumentThumbnailContent(
+            previewUrl = previewUrl,
+            contentDescription = contentDescription,
+            modifier = modifier,
+            width = width,
+            height = height,
+            showOfflineFlag = showOfflineFlag,
+            showFavoriteFlag = showFavoriteFlag,
+            attachmentCount = attachmentCount,
+            isOpeningDocument = isOpeningDocument,
+            openProgressPercent = openProgressPercent,
+            imageReloadGeneration = imageReloadGeneration
+        )
+    }
+}
+
+@Composable
+private fun DocumentThumbnailContent(
+    previewUrl: String,
+    contentDescription: String,
+    modifier: Modifier,
+    width: Dp,
+    height: Dp,
+    showOfflineFlag: Boolean,
+    showFavoriteFlag: Boolean,
+    attachmentCount: Int,
+    isOpeningDocument: Boolean,
+    openProgressPercent: Int,
+    imageReloadGeneration: Int
 ) {
     val context = LocalContext.current
+    val cacheKey = if (imageReloadGeneration == 0) {
+        previewUrl
+    } else {
+        "$previewUrl#$imageReloadGeneration"
+    }
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(context)
             .data(previewUrl.takeIf { it.isNotBlank() })
             .crossfade(true)
-            .diskCacheKey(previewUrl)
-            .memoryCacheKey(previewUrl)
+            .diskCacheKey(cacheKey)
+            .memoryCacheKey(cacheKey)
             .build()
     )
     val painterState = painter.state

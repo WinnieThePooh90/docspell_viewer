@@ -49,6 +49,7 @@ import paulokat.de.docspellviewer.PdfViewerUiState
 fun DocumentDetailScreen(
     state: DocumentDetailUiState,
     pdfViewerState: PdfViewerUiState,
+    imageReloadGeneration: Int,
     onBack: () -> Unit,
     onOpenDocument: () -> Unit,
     onAttachmentClick: (DetailAttachmentRow) -> Unit,
@@ -133,6 +134,7 @@ fun DocumentDetailScreen(
                             DocumentThumbnail(
                                 previewUrl = state.previewUrl,
                                 contentDescription = stringResource(R.string.cd_preview, state.title),
+                                imageReloadGeneration = imageReloadGeneration,
                                 width = 140.dp,
                                 height = 186.dp,
                                 showOfflineFlag = state.isOfflineAvailable,

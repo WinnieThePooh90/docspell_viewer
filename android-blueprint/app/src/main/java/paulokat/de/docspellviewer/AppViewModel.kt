@@ -272,6 +272,9 @@ class AppViewModel(
     private val _favoritesListState = MutableStateFlow(FavoritesListUiState())
     val favoritesListState: StateFlow<FavoritesListUiState> = _favoritesListState.asStateFlow()
 
+    private val _thumbnailReloadGeneration = MutableStateFlow(0)
+    val thumbnailReloadGeneration: StateFlow<Int> = _thumbnailReloadGeneration.asStateFlow()
+
     private var repository: DocspellRepository? = null
     private var lastDocspellQuery: String? = null
     private var searchPageSize: Int = DEFAULT_PAGE_SIZE
@@ -729,7 +732,7 @@ class AppViewModel(
         repository = null
         closeDocumentDetail()
         closePdfViewer()
-        clearThumbnailMemoryCache()
+        clearThumbnailCaches()
         bindActiveAccount(account, reloadPreferences = true)
         if (fromSettings) {
             refreshSettingsForm(account)
@@ -850,10 +853,15 @@ class AppViewModel(
         )
     }
 
-    private fun clearThumbnailMemoryCache() {
+    private fun clearThumbnailCaches() {
         runCatching {
-            coil.Coil.imageLoader(appContext).memoryCache?.clear()
+            DocspellImageLoader.invalidateCaches(coil.Coil.imageLoader(appContext))
         }
+    }
+
+    private fun onAuthTokenUpdated() {
+        clearThumbnailCaches()
+        _thumbnailReloadGeneration.value++
     }
 
     private fun activeServerSettings(): ServerSettings? {
@@ -1128,6 +1136,7 @@ class AppViewModel(
         }
         tokenStore.setToken(token)
         repository = repo
+        onAuthTokenUpdated()
         return true
     }
 
@@ -1999,6 +2008,7 @@ class AppViewModel(
 
         tokenStore.setToken(token)
         repository = repo
+        onAuthTokenUpdated()
         searchWithCurrentSession(query)
     }
 

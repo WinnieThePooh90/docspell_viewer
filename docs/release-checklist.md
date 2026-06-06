@@ -58,11 +58,11 @@ Reihenfolge: erst frische Installation, dann Upgrade-Szenario (falls möglich).
 
 ### A5 — Dokumentation & Recht (Repository)
 
-- [ ] `LICENSE` im Repo-Root (Lizenz für **euren** App-Code, z. B. Apache-2.0)
-- [ ] `README.md` aktualisieren: Features, Multi-Account, Voraussetzungen, Installation, kein OIDC
-- [ ] `CHANGELOG.md` anlegen mit Eintrag **1.0.0**
-- [ ] In README: Link zu `docs/docspell-validation.md` und `docs/release-checklist.md`
-- [ ] Hinweis zu Docspell-Icons / AGPL in README oder Verweis auf In-App-Lizenzen
+- [x] `LICENSE` im Repo-Root (Lizenz für **euren** App-Code, z. B. Apache-2.0)
+- [x] `README.md` aktualisieren: Features, Multi-Account, Voraussetzungen, Installation, kein OIDC
+- [x] `CHANGELOG.md` anlegen mit Eintrag **1.0.0**
+- [x] In README: Link zu `docs/docspell-validation.md` und `docs/release-checklist.md`
+- [x] Hinweis zu Docspell-Icons / AGPL in README oder Verweis auf In-App-Lizenzen
 
 ### A6 — Veröffentlichung Stufe A
 
@@ -153,6 +153,8 @@ B1 Session → B2 Kompatibilität → B3 Tests/CI → B4 Datenschutz → B5 Play
 | Server-Validierung | `docs/docspell-validation.md` |
 | MVP-Scope | `docs/mvp-scope.md` |
 | Build / Version | `android-blueprint/app/build.gradle.kts` |
+| App-Lizenz | `LICENSE` (Apache-2.0) |
+| Changelog | `CHANGELOG.md` |
 | Release-APK (Artefakt) | `android-blueprint/app/build/outputs/apk/release/docspell_viewer_1.0.0.apk` |
 | ProGuard / R8 | `android-blueprint/app/proguard-rules.pro` |
 | Release-Keystore (lokal) | `~/Nextcloud/Programmierung/Keys/docspell_viewer/` |

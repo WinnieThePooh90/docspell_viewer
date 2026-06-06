@@ -1,8 +1,7 @@
 package paulokat.de.docspellviewer
 
 /**
- * Third-party software notices for the Android app (FOSS attribution).
- * Structure modeled after common open-source attribution pages (e.g. Dropbox Android).
+ * Open-source license and attribution notices shown in Settings → Licenses.
  */
 data class ThirdPartyNotice(
     val name: String,
@@ -10,8 +9,6 @@ data class ThirdPartyNotice(
 )
 
 object ThirdPartyNotices {
-    const val PAGE_TITLE = "Android App Third-Party Software Notices"
-
     private val APACHE_2_0_NOTICE = """
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at:
 
@@ -20,13 +17,29 @@ http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """.trimIndent()
 
-    val introduction: String = """
-This document contains licensing information relating to the use of free and open-source software ("FOSS") with or within the ${AppInfo.NAME} Android app. Any terms, conditions, and restrictions governing the use or distribution of FOSS that are not contained within the license(s) governing use and distribution of the FOSS (the "FOSS Licenses") are offered and imposed by the app distributor alone. The authors, licensors, and distributors of the FOSS have disclaimed all warranties relating to any liability arising from the use and distribution of the FOSS.
+    val appLicense: ThirdPartyNotice = ThirdPartyNotice(
+        name = "${AppInfo.NAME} (application source code)",
+        body = """
+Copyright ${AppInfo.COPYRIGHT_YEAR} ${AppInfo.COPYRIGHT_HOLDER}
 
-Certain FOSS Licenses, such as the GNU Affero General Public License, require that corresponding source code for distributed FOSS binaries be made available under the same license. Recipients of ${AppInfo.NAME} who would like to receive a copy of such source code may request it via the contact information provided in the app repository or project documentation. Please identify: the FOSS package(s) requested; the application name and version number with which the FOSS is distributed; and a means to deliver the requested source code.
+The source code of this Android application is licensed under the Apache License, Version 2.0 (${AppInfo.LICENSE_SPDX}).
+
+Source repository: ${AppInfo.SOURCE_REPOSITORY}
+Full license text: ${AppInfo.SOURCE_REPOSITORY}/blob/main/LICENSE
+
+$APACHE_2_0_NOTICE
+""".trim()
+    )
+
+    val introduction: String = """
+The ${AppInfo.NAME} application source code is licensed under the Apache License 2.0 (see above).
+
+This document also lists third-party open-source software ("FOSS") used in the app, and artwork under separate licenses. Any terms not contained in the respective FOSS licenses are offered by the app distributor alone.
+
+Certain FOSS licenses, such as the GNU Affero General Public License, require that corresponding source code for distributed components be made available under the same license. Recipients who would like a copy of such source code may request it via ${AppInfo.SOURCE_REPOSITORY} or the project issue tracker. Please identify the FOSS package(s) requested, the application name and version, and a delivery address.
 """.trim()
 
-    val entries: List<ThirdPartyNotice> = listOf(
+    val thirdPartyEntries: List<ThirdPartyNotice> = listOf(
         ThirdPartyNotice(
             name = "Android Open Source Project",
             body = """

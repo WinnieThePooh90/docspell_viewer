@@ -46,4 +46,9 @@ object DocspellImageLoader {
             .crossfade(true)
             .build()
     }
+
+    fun invalidateCaches(loader: ImageLoader) {
+        loader.memoryCache?.clear()
+        loader.diskCache?.clear()
+    }
 }

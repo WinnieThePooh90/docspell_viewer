@@ -34,6 +34,7 @@ import paulokat.de.docspellviewer.PdfViewerUiState
 fun FavoritesDocumentsContent(
     state: FavoritesListUiState,
     pdfViewerState: PdfViewerUiState,
+    imageReloadGeneration: Int,
     onOpenDocument: (DocumentRow) -> Unit,
     onOpenDetail: (DocumentRow) -> Unit
 ) {
@@ -95,6 +96,7 @@ fun FavoritesDocumentsContent(
                                 DocumentThumbnail(
                                     previewUrl = doc.previewUrl,
                                     contentDescription = stringResource(R.string.cd_preview, doc.name),
+                                    imageReloadGeneration = imageReloadGeneration,
                                     showOfflineFlag = doc.isOfflineAvailable,
                                     showFavoriteFlag = doc.isFavorite,
                                     isOpeningDocument = pdfViewerState.isOpeningDocument(doc.id),

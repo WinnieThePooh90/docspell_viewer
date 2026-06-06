@@ -62,6 +62,7 @@ fun DocspellApp(viewModel: AppViewModel) {
     val documentDetailState by viewModel.documentDetailState.collectAsState()
     val offlineListState by viewModel.offlineListState.collectAsState()
     val favoritesListState by viewModel.favoritesListState.collectAsState()
+    val thumbnailReloadGeneration by viewModel.thumbnailReloadGeneration.collectAsState()
     var pendingDownload by remember { mutableStateOf<DownloadSaveRequest?>(null) }
 
     val saveDocumentLauncher = rememberLauncherForActivityResult(
@@ -127,6 +128,7 @@ fun DocspellApp(viewModel: AppViewModel) {
                         favoritesState = favoritesListState,
                         accountsState = settingsState,
                         pdfViewerState = pdfViewerState,
+                        imageReloadGeneration = thumbnailReloadGeneration,
                         needsAccountSetup = homeState.needsSettings,
                         onOpenFilter = { filter ->
                             when (filter) {
@@ -184,6 +186,7 @@ fun DocspellApp(viewModel: AppViewModel) {
                                 HomeScreenContent(
                                     state = homeState,
                                     pdfViewerState = pdfViewerState,
+                                    imageReloadGeneration = thumbnailReloadGeneration,
                                     onQueryChange = viewModel::onQueryChange,
                                     onSearch = viewModel::runSearch,
                                     onOpenDocument = viewModel::startPdfViewer,
@@ -212,6 +215,7 @@ fun DocspellApp(viewModel: AppViewModel) {
                     DocumentDetailScreen(
                         state = documentDetailState,
                         pdfViewerState = pdfViewerState,
+                        imageReloadGeneration = thumbnailReloadGeneration,
                         onBack = {
                             viewModel.closeDocumentDetail()
                             navController.popBackStack()

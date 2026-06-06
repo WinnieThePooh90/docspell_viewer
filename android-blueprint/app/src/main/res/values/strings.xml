@@ -29,6 +29,8 @@
     <string name="settings_support">Unterstützung</string>
     <string name="settings_support_hint">Dir gefällt die App? Du möchtest mich ein bisschen unterstützen? Darüber würde ich mich sehr freuen :)</string>
     <string name="settings_licenses">Lizenzen</string>
+    <string name="licenses_section_app">Diese App (Quellcode)</string>
+    <string name="licenses_section_third_party">Drittanbieter &amp; weiteres Material</string>
     <string name="settings_save">Speichern</string>
     <string name="settings_build">Build: %1$s</string>
     <plurals name="settings_offline_documents">

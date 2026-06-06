@@ -46,6 +46,7 @@ import paulokat.de.docspellviewer.PdfViewerUiState
 fun HomeScreenContent(
     state: HomeUiState,
     pdfViewerState: PdfViewerUiState,
+    imageReloadGeneration: Int,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
     onOpenDocument: (DocumentRow) -> Unit,
@@ -192,6 +193,7 @@ fun HomeScreenContent(
                                 DocumentThumbnail(
                                     previewUrl = doc.previewUrl,
                                     contentDescription = stringResource(R.string.cd_preview, doc.name),
+                                    imageReloadGeneration = imageReloadGeneration,
                                     showOfflineFlag = doc.isOfflineAvailable,
                                     showFavoriteFlag = doc.isFavorite,
                                     attachmentCount = doc.attachmentCount,

@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import paulokat.de.docspellviewer.R
+import paulokat.de.docspellviewer.ThirdPartyNotice
 import paulokat.de.docspellviewer.ThirdPartyNotices
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,36 +55,54 @@ fun LicensesScreen(onBack: () -> Unit) {
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             item {
-                Text(
-                    text = ThirdPartyNotices.PAGE_TITLE,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                LicenseSectionHeader(stringResource(R.string.licenses_section_app))
+            }
+            item {
+                LicenseNoticeBlock(ThirdPartyNotices.appLicense)
+            }
+            item {
+                LicenseSectionHeader(stringResource(R.string.licenses_section_third_party))
+            }
+            item {
                 Text(
                     text = ThirdPartyNotices.introduction,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 24.dp)
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
             }
-            items(ThirdPartyNotices.entries) { notice ->
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = notice.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    Text(
-                        text = notice.body,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 24.dp)
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
-                }
+            items(ThirdPartyNotices.thirdPartyEntries) { notice ->
+                LicenseNoticeBlock(notice)
             }
         }
+    }
+}
+
+@Composable
+private fun LicenseSectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(bottom = 12.dp, top = 8.dp)
+    )
+}
+
+@Composable
+private fun LicenseNoticeBlock(notice: ThirdPartyNotice) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = notice.name,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Text(
+            text = notice.body,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+        HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
     }
 }

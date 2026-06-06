@@ -130,3 +130,11 @@ Copyright © 2026 Karsten Paulokat
 **Ausnahme — Launcher-Icons:** Die App-Icons stammen von [Docspell](https://github.com/eikek/docspell) (Artwork) und unterliegen der **GNU AGPL v3+**, nicht der Apache-Lizenz. Details und Quellverweis stehen in der App unter Lizenzen sowie in [`ThirdPartyNotices.kt`](android-blueprint/app/src/main/java/paulokat/de/docspellviewer/ThirdPartyNotices.kt).
 
 Drittanbieter-Bibliotheken (AndroidX, Kotlin, Retrofit, Moshi, Coil, …) sind überwiegend Apache 2.0; Attribution in der App und in `ThirdPartyNotices.kt`.
+
+## Unterstützung
+
+Dir gefällt die App? Du möchtest meine Arbeit ein bisschen unterstützen? Darüber würde ich mich sehr freuen :)
+
+[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://buymeacoffee.com/KarstenPaulokat)
+
+Freiwillig — [buymeacoffee.com/KarstenPaulokat](https://buymeacoffee.com/KarstenPaulokat) ist ein externer Dienst; die App übergibt dabei keine Docspell-Daten (siehe auch [`docs/privacy-policy.md`](docs/privacy-policy.md)).

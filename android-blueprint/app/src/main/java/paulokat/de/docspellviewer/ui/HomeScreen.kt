@@ -10,15 +10,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +30,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,10 +45,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import paulokat.de.docspellviewer.DocumentListSort
 import paulokat.de.docspellviewer.DocumentRow
 import paulokat.de.docspellviewer.R
 import paulokat.de.docspellviewer.HomeUiState
 import paulokat.de.docspellviewer.PdfViewerUiState
+import paulokat.de.docspellviewer.labelRes
 
 @Composable
 fun HomeScreenContent(
@@ -52,7 +62,8 @@ fun HomeScreenContent(
     onOpenDocument: (DocumentRow) -> Unit,
     onOpenDetail: (DocumentRow) -> Unit,
     onLoadMore: () -> Unit,
-    onCorrespondentClick: (DocumentRow) -> Unit
+    onCorrespondentClick: (DocumentRow) -> Unit,
+    onDocumentListSortChange: (DocumentListSort) -> Unit
 ) {
     val context = LocalContext.current
     val hitsSummary = state.hitsSummary(context)
@@ -148,9 +159,14 @@ fun HomeScreenContent(
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Spacer(modifier = Modifier.size(width = 48.dp, height = 1.dp))
+            DocumentListSortHeaderButton(
+                currentSort = state.documentListSort,
+                onSortChange = onDocumentListSortChange,
+                modifier = Modifier.size(48.dp)
+            )
             Text(
                 text = stringResource(R.string.home_column_document),
                 modifier = Modifier.weight(0.5f),
@@ -167,6 +183,13 @@ fun HomeScreenContent(
 
         HorizontalDivider()
 
+        val listState = rememberLazyListState()
+        LaunchedEffect(state.documentListSort) {
+            if (state.documents.isNotEmpty()) {
+                listState.scrollToItem(0)
+            }
+        }
+
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -180,7 +203,10 @@ fun HomeScreenContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                LazyColumn(
+                    state = listState,
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
+                ) {
                     items(state.documents, key = { it.id }) { doc ->
                         Column {
                             Row(
@@ -262,6 +288,46 @@ fun HomeScreenContent(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DocumentListSortHeaderButton(
+    currentSort: DocumentListSort,
+    onSortChange: (DocumentListSort) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        IconButton(
+            onClick = { menuExpanded = true },
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Sort,
+                contentDescription = stringResource(R.string.cd_sort_documents)
+            )
+        }
+        DropdownMenu(
+            expanded = menuExpanded,
+            onDismissRequest = { menuExpanded = false }
+        ) {
+            DocumentListSort.entries.forEach { sort ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = stringResource(sort.labelRes()),
+                            fontWeight = if (sort == currentSort) FontWeight.Bold else FontWeight.Normal
+                        )
+                    },
+                    onClick = {
+                        menuExpanded = false
+                        onSortChange(sort)
+                    }
+                )
             }
         }
     }

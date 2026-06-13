@@ -33,7 +33,8 @@ data class DocumentRow(
     val downloadFileName: String = "dokument.pdf",
     val isOfflineAvailable: Boolean = false,
     val isFavorite: Boolean = false,
-    val attachmentCount: Int = 0
+    val attachmentCount: Int = 0,
+    val documentDate: Long? = null
 )
 
 data class OfflineListUiState(
@@ -58,7 +59,8 @@ data class HomeUiState(
     val activeAccountLabel: String? = null,
     val sidebarFilterVisibility: SidebarFilterVisibility = SidebarFilterVisibility(),
     val overviewShowSearchTable: Boolean = false,
-    val navigateToOverviewNonce: Int = 0
+    val navigateToOverviewNonce: Int = 0,
+    val documentListSort: DocumentListSort = DocumentListSort.DEFAULT
 ) {
     fun hitsSummary(context: Context): String? {
         val total = totalResultCount ?: return null
@@ -279,6 +281,8 @@ class AppViewModel(
 
     private var repository: DocspellRepository? = null
     private var lastDocspellQuery: String? = null
+    private var cachedRawSearchResults: List<DocumentRow> = emptyList()
+    private var searchResultsCacheValid: Boolean = false
     private var searchPageSize: Int = DEFAULT_PAGE_SIZE
     private var detailFieldVisibility: DetailFieldVisibility = DetailFieldVisibility()
     private var sidebarFilterVisibility: SidebarFilterVisibility = SidebarFilterVisibility()
@@ -414,7 +418,61 @@ class AppViewModel(
             sidebarFilterVisibility = preferences.sidebarFilterVisibility,
             startPageId = preferences.startPageId
         )
-        _homeState.value = _homeState.value.copy(overviewShowSearchTable = false)
+        val home = _homeState.value
+        _homeState.value = home.copy(
+            overviewShowSearchTable = false,
+            documentListSort = preferences.documentListSort,
+            documents = if (home.documents.isEmpty()) {
+                home.documents
+            } else if (preferences.documentListSort.usesServerPagination()) {
+                applyListFlags(home.documents)
+            } else if (searchResultsCacheValid && cachedRawSearchResults.isNotEmpty()) {
+                buildSortedSearchResultsFromCache(preferences.documentListSort)
+                    .take(home.documents.size.coerceAtLeast(searchPageSize))
+            } else {
+                applyListFlags(home.documents).sortedByDocumentListSort(preferences.documentListSort)
+            }
+        )
+    }
+
+    fun onDocumentListSortChange(sort: DocumentListSort) {
+        val accountId = activeAccount?.id ?: return
+        val stores = AccountScopedStores.forAccount(appContext, accountId)
+        val prefs = stores.preferences.load()
+        if (prefs.documentListSort == sort) {
+            return
+        }
+        stores.preferences.save(prefs.copy(documentListSort = sort))
+        _homeState.value = _homeState.value.copy(documentListSort = sort)
+
+        if (sort.usesServerPagination()) {
+            invalidateSearchResultsCache()
+            viewModelScope.launch {
+                searchWithCurrentSession(_homeState.value.query)
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            val repo = repository ?: return@launch
+            val apiBaseUrl = activeAccount?.baseUrl ?: return@launch
+            _homeState.value = _homeState.value.copy(isLoading = true, error = null)
+            runCatching {
+                buildSortedSearchResults(repo, lastDocspellQuery, apiBaseUrl, sort)
+            }.onSuccess { sorted ->
+                publishSortedSearchPage(
+                    sorted = sorted,
+                    visibleCount = searchPageSize,
+                    totalFromStats = _homeState.value.totalResultCount
+                )
+                _homeState.value = _homeState.value.copy(isLoading = false, error = null)
+            }.onFailure { err ->
+                _homeState.value = _homeState.value.copy(
+                    isLoading = false,
+                    error = explainError(R.string.error_step_search, err)
+                )
+            }
+        }
     }
 
     private fun applyDetailFieldVisibility(visibility: DetailFieldVisibility, persist: Boolean) {
@@ -846,6 +904,8 @@ class AppViewModel(
         }
         if (localeAppliedForLanguage != language) {
             localeAppliedForLanguage = language
+            clearThumbnailCaches()
+            _thumbnailReloadGeneration.value++
             _localeChangeEvent.tryEmit(Unit)
         }
     }
@@ -1417,7 +1477,7 @@ class AppViewModel(
         val apiBase = activeAccount?.baseUrl.orEmpty()
         val docs = stores.offlineDocuments.listDocuments()
             .map { it.toDocumentRow(apiBase) }
-            .let { applyListFlags(it) }
+            .let { presentDocumentList(it) }
         _offlineListState.value = OfflineListUiState(documents = docs)
     }
 
@@ -1430,7 +1490,7 @@ class AppViewModel(
         val offlineIds = stores.offlineDocuments.getAvailableItemIds()
         val docs = stores.favorites.listAll()
             .map { it.toDocumentRow(apiBase, it.itemId in offlineIds) }
-            .let { applyListFlags(it) }
+            .let { presentDocumentList(it) }
         _favoritesListState.value = FavoritesListUiState(documents = docs)
     }
 
@@ -1473,10 +1533,56 @@ class AppViewModel(
             return
         }
         val home = _homeState.value
-        _homeState.value = home.copy(
-            documents = applyListFlags(home.documents)
-        )
+        val sort = home.documentListSort
+        val visibleCount = home.documents.size
+        if (searchResultsCacheValid && cachedRawSearchResults.isNotEmpty() && !sort.usesServerPagination()) {
+            val sorted = buildSortedSearchResultsFromCache(sort)
+            _homeState.value = home.copy(
+                documents = sorted.take(visibleCount)
+            )
+        } else if (sort.usesServerPagination()) {
+            _homeState.value = home.copy(documents = applyListFlags(home.documents))
+        } else {
+            _homeState.value = home.copy(
+                documents = applyListFlags(home.documents).sortedByDocumentListSort(sort)
+            )
+        }
         loadOfflineDocuments()
+    }
+
+    private fun invalidateSearchResultsCache() {
+        cachedRawSearchResults = emptyList()
+        searchResultsCacheValid = false
+    }
+
+    private suspend fun buildSortedSearchResults(
+        repo: DocspellRepository,
+        docspellQuery: String?,
+        apiBaseUrl: String,
+        sort: DocumentListSort
+    ): List<DocumentRow> {
+        if (!searchResultsCacheValid || cachedRawSearchResults.isEmpty()) {
+            cachedRawSearchResults = repo.fetchAllSearchDocuments(docspellQuery, apiBaseUrl)
+            searchResultsCacheValid = true
+        }
+        return buildSortedSearchResultsFromCache(sort)
+    }
+
+    private fun buildSortedSearchResultsFromCache(sort: DocumentListSort): List<DocumentRow> {
+        return applyListFlags(cachedRawSearchResults).sortedByDocumentListSort(sort)
+    }
+
+    private fun publishSortedSearchPage(
+        sorted: List<DocumentRow>,
+        visibleCount: Int,
+        totalFromStats: Int?
+    ) {
+        val pageSize = visibleCount.coerceAtLeast(searchPageSize)
+        _homeState.value = _homeState.value.copy(
+            documents = sorted.take(pageSize),
+            hasMoreResults = sorted.size > pageSize,
+            totalResultCount = totalFromStats ?: sorted.size
+        )
     }
 
     private fun applyListFlags(documents: List<DocumentRow>): List<DocumentRow> {
@@ -1488,6 +1594,10 @@ class AppViewModel(
                 isFavorite = stores.favorites.isFavorite(doc.id)
             )
         }
+    }
+
+    private fun presentDocumentList(documents: List<DocumentRow>): List<DocumentRow> {
+        return applyListFlags(documents).sortedByDocumentListSort(_homeState.value.documentListSort)
     }
 
     fun closeDocumentDetail() {
@@ -2039,6 +2149,21 @@ class AppViewModel(
         if (!state.hasMoreResults || state.isLoadingMore || state.isLoading) {
             return
         }
+        val sort = state.documentListSort
+        if (!sort.usesServerPagination()) {
+            if (!searchResultsCacheValid || cachedRawSearchResults.isEmpty()) {
+                return
+            }
+            val sorted = buildSortedSearchResultsFromCache(sort)
+            val nextCount = (state.documents.size + searchPageSize).coerceAtMost(sorted.size)
+            _homeState.value = state.copy(
+                documents = sorted.take(nextCount),
+                hasMoreResults = nextCount < sorted.size,
+                isLoadingMore = false
+            )
+            return
+        }
+
         val repo = repository ?: return
         val apiBaseUrl = activeAccount?.baseUrl ?: return
 
@@ -2054,10 +2179,10 @@ class AppViewModel(
                 )
             }.onSuccess { newDocs ->
                 val existingIds = state.documents.map { it.id }.toSet()
-                val appended = newDocs.filter { it.id !in existingIds }
+                val appended = applyListFlags(newDocs.filter { it.id !in existingIds })
                 val merged = state.documents + appended
                 _homeState.value = _homeState.value.copy(
-                    documents = applyListFlags(merged),
+                    documents = merged,
                     hasMoreResults = newDocs.size == searchPageSize,
                     isLoadingMore = false,
                     error = null
@@ -2075,7 +2200,9 @@ class AppViewModel(
         val repo = repository ?: return
         val docspellQuery = resolveDocspellQuery(query)
         lastDocspellQuery = docspellQuery
+        invalidateSearchResultsCache()
 
+        val sort = _homeState.value.documentListSort
         _homeState.value = _homeState.value.copy(
             statusResId = R.string.status_searching,
             statusQuery = null,
@@ -2089,24 +2216,46 @@ class AppViewModel(
 
         val apiBaseUrl = activeAccount?.baseUrl ?: return
         runCatching {
-            val docs = repo.loadDocuments(
-                docspellQuery = docspellQuery,
-                apiBaseUrl = apiBaseUrl,
-                offset = 0,
-                limit = searchPageSize
-            )
             val total = runCatching { repo.loadSearchResultCount(docspellQuery) }.getOrNull()
-            docs to total
-        }.onSuccess { (docs, total) ->
-            _homeState.value = _homeState.value.copy(
-                statusResId = if (docspellQuery == null) R.string.status_latest_documents else null,
-                statusQuery = docspellQuery,
-                documents = applyListFlags(docs),
-                hasMoreResults = docs.size == searchPageSize,
-                totalResultCount = total,
-                isLoading = false,
-                error = null
-            )
+            if (sort.usesServerPagination()) {
+                val docs = repo.loadDocuments(
+                    docspellQuery = docspellQuery,
+                    apiBaseUrl = apiBaseUrl,
+                    offset = 0,
+                    limit = searchPageSize
+                )
+                docs to total
+            } else {
+                val sorted = buildSortedSearchResults(repo, docspellQuery, apiBaseUrl, sort)
+                sorted to total
+            }
+        }.onSuccess { (result, total) ->
+            if (sort.usesServerPagination()) {
+                val docs = result
+                _homeState.value = _homeState.value.copy(
+                    statusResId = if (docspellQuery == null) R.string.status_latest_documents else null,
+                    statusQuery = docspellQuery,
+                    documents = applyListFlags(docs),
+                    hasMoreResults = docs.size == searchPageSize &&
+                        (total == null || docs.size < total),
+                    totalResultCount = total,
+                    isLoading = false,
+                    error = null
+                )
+            } else {
+                val sorted = result
+                publishSortedSearchPage(
+                    sorted = sorted,
+                    visibleCount = searchPageSize,
+                    totalFromStats = total
+                )
+                _homeState.value = _homeState.value.copy(
+                    statusResId = if (docspellQuery == null) R.string.status_latest_documents else null,
+                    statusQuery = docspellQuery,
+                    isLoading = false,
+                    error = null
+                )
+            }
         }.onFailure { err ->
             _homeState.value = _homeState.value.copy(
                 statusResId = R.string.status_search_error,
@@ -2188,6 +2337,10 @@ class AppViewModel(
 class DocspellRepository(
     private val api: DocspellApi
 ) {
+    companion object {
+        private const val SEARCH_FETCH_BATCH_SIZE = 100
+    }
+
     suspend fun login(account: String, password: String): LoginResponse {
         val body = """
             {"account":"${escapeJson(account)}","password":"${escapeJson(password)}"}
@@ -2331,6 +2484,36 @@ class DocspellRepository(
             )
         }
         return result.groups.flatMap { it.items }.map { it.toDocumentRow(apiBaseUrl) }
+    }
+
+    suspend fun fetchAllSearchDocuments(
+        docspellQuery: String?,
+        apiBaseUrl: String,
+        batchSize: Int = SEARCH_FETCH_BATCH_SIZE
+    ): List<DocumentRow> {
+        val totalHint = runCatching { loadSearchResultCount(docspellQuery) }.getOrNull()
+        val all = mutableListOf<DocumentRow>()
+        var offset = 0
+        while (true) {
+            val page = loadDocuments(
+                docspellQuery = docspellQuery,
+                apiBaseUrl = apiBaseUrl,
+                offset = offset,
+                limit = batchSize
+            )
+            if (page.isEmpty()) {
+                break
+            }
+            all.addAll(page)
+            offset += page.size
+            if (page.size < batchSize) {
+                break
+            }
+            if (totalHint != null && all.size >= totalHint) {
+                break
+            }
+        }
+        return all
     }
 
     suspend fun loadSearchResultCount(docspellQuery: String?): Int {

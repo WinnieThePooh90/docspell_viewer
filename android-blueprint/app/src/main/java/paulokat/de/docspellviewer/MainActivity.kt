@@ -8,7 +8,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.Coil
 import paulokat.de.docspellviewer.ui.DocspellApp
 
 class MainActivity : ComponentActivity() {
@@ -19,11 +18,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val app = application as DocspellApplication
         val appCtx = applicationContext
         val accountStore = AccountStore(appCtx)
-        val tokenStore = InMemoryTokenStore()
-        val sessionManager = DocspellSessionManager(tokenStore = tokenStore)
-        Coil.setImageLoader(DocspellImageLoader.create(appCtx, tokenStore, sessionManager))
+        val tokenStore = app.tokenStore
+        val sessionManager = app.sessionManager
 
         val viewModelFactory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")

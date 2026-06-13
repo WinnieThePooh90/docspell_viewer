@@ -71,6 +71,13 @@
     <string name="home_search_hint">Search — empty = latest documents</string>
     <string name="home_column_document">Document</string>
     <string name="home_column_correspondent">Correspondent</string>
+    <string name="cd_sort_documents">Sort</string>
+    <string name="home_sort_date_desc">Date (newest first)</string>
+    <string name="home_sort_date_asc">Date (oldest first)</string>
+    <string name="home_sort_name_asc">Name (A–Z)</string>
+    <string name="home_sort_name_desc">Name (Z–A)</string>
+    <string name="home_sort_correspondent_asc">Correspondent (A–Z)</string>
+    <string name="home_sort_correspondent_desc">Correspondent (Z–A)</string>
     <string name="home_no_documents">No documents found</string>
     <string name="home_load_more">Load more</string>
     <string name="home_hits_summary">Hits: %1$d/%2$d</string>

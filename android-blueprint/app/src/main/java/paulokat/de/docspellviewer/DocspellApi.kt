@@ -273,7 +273,8 @@ fun ItemSummary.toDocumentRow(apiBaseUrl: String): DocumentRow {
         viewUrl = attachmentId?.let { DocspellUrls.attachmentView(apiBaseUrl, it) },
         downloadUrl = attachmentId?.let { DocspellUrls.attachmentDownload(apiBaseUrl, it) },
         downloadFileName = downloadName,
-        attachmentCount = attachments.size
+        attachmentCount = attachments.size,
+        documentDate = date
     )
 }
 

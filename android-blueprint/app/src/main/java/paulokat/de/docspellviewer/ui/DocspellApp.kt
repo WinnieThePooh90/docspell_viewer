@@ -196,7 +196,8 @@ fun DocspellApp(viewModel: AppViewModel) {
                                         navController.navigate(ROUTE_DETAIL)
                                     },
                                     onLoadMore = viewModel::loadMore,
-                                    onCorrespondentClick = viewModel::searchByCorrespondentFromDocument
+                                    onCorrespondentClick = viewModel::searchByCorrespondentFromDocument,
+                                    onDocumentListSortChange = viewModel::onDocumentListSortChange
                                 )
                             } else {
                                 StartPageOverviewContent(

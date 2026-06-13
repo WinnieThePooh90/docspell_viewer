@@ -12,7 +12,8 @@ data class AppPreferences(
     val detailFieldVisibility: DetailFieldVisibility = DetailFieldVisibility(),
     val sidebarFilterVisibility: SidebarFilterVisibility = SidebarFilterVisibility(),
     val startPageId: String = StartPageStorage.SEARCH,
-    val appLanguage: AppLanguage = AppLanguage.ENGLISH
+    val appLanguage: AppLanguage = AppLanguage.ENGLISH,
+    val documentListSort: DocumentListSort = DocumentListSort.DEFAULT
 )
 
 class AppPreferencesStore(
@@ -43,6 +44,9 @@ class AppPreferencesStore(
             prefs.getString(KEY_START_PAGE, null)
         )
         val appLanguage = loadAppLanguage()
+        val documentListSort = DocumentListSort.fromPreferenceKey(
+            prefs.getString(KEY_DOCUMENT_LIST_SORT, null)
+        )
         return AppPreferences(
             colorScheme = colorScheme,
             useDarkTheme = useDarkTheme,
@@ -50,7 +54,8 @@ class AppPreferencesStore(
             detailFieldVisibility = visibility,
             sidebarFilterVisibility = sidebarVisibility,
             startPageId = startPageId,
-            appLanguage = appLanguage
+            appLanguage = appLanguage,
+            documentListSort = documentListSort
         )
     }
 
@@ -66,6 +71,7 @@ class AppPreferencesStore(
             .putString(KEY_SIDEBAR_FILTERS_ORDER, preferences.sidebarFilterVisibility.toOrderPreferenceValue())
             .putString(KEY_START_PAGE, preferences.startPageId)
             .putString(KEY_APP_LANGUAGE, preferences.appLanguage.tag)
+            .putString(KEY_DOCUMENT_LIST_SORT, preferences.documentListSort.preferenceKey)
             .apply()
     }
 
@@ -91,6 +97,7 @@ class AppPreferencesStore(
         private const val KEY_SIDEBAR_FILTERS_ORDER = "sidebar_filters_order"
         private const val KEY_START_PAGE = "overview_start_page"
         private const val KEY_APP_LANGUAGE = "app_language"
+        private const val KEY_DOCUMENT_LIST_SORT = "document_list_sort"
 
         fun prefsName(accountId: String): String {
             val cleaned = accountId.trim().replace(Regex("[^a-zA-Z0-9_-]"), "_")

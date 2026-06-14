@@ -158,14 +158,14 @@ fun HomeScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = 12.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             DocumentListSortHeaderButton(
                 currentSort = state.documentListSort,
                 onSortChange = onDocumentListSortChange,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(width = 48.dp, height = 24.dp)
             )
             Text(
                 text = stringResource(R.string.home_column_document),
@@ -304,11 +304,12 @@ private fun DocumentListSortHeaderButton(
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         IconButton(
             onClick = { menuExpanded = true },
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(24.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Sort,
-                contentDescription = stringResource(R.string.cd_sort_documents)
+                contentDescription = stringResource(R.string.cd_sort_documents),
+                modifier = Modifier.size(18.dp)
             )
         }
         DropdownMenu(
